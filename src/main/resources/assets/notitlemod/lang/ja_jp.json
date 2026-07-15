@@ -1,4 +1,13 @@
 {
+  "item.notitlemod.aluminum": "アルミニウム鉱石",
+  "item.notitlemod.chromium_ore" : "クロム鉱石",
+  "item.notitlemod.cobalt_ore" : "コバルト鉱石",
+  "item.notitlemod.lead_ore" : "鉛鉱石",
+  "item.notitlemod.silver_ore" : "銀鉱石",
+  "item.notitlemod.tin_ore" : "錫鉱石",
+  "item.notitlemod.titanium_ore" : "チタン鉱石",
+  "item.notitlemod.tungsten_ore" : "タングステン鉱石",
+  "item.notitlemod.zinc_ore" : "亜鉛鉱石",
   "item.notitlemod.copper_dust": "銅粉",
   "item.notitlemod.iron_dust": "鉄粉",
   "item.notitlemod.zinc_dust": "亜鉛粉",

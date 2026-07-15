@@ -1,5 +1,6 @@
 package com.yuyuto.no_title_mod;
 
+import com.yuyuto.no_title_mod.registry.ModBlocks;
 import com.yuyuto.no_title_mod.registry.ModCreativeTabs;
 import com.yuyuto.no_title_mod.registry.ModItems;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -16,6 +17,7 @@ public class NoTitleMod {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
 
         ModItems.register(modEventBus);
+        ModBlocks.register(modEventBus);
         ModCreativeTabs.register(modEventBus);
     }
 }

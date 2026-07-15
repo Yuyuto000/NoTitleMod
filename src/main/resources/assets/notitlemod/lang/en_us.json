@@ -1,4 +1,13 @@
 {
+  "item.notitlemod.aluminum_ore": "aluminum ore",
+  "item.notitlemod.chromium_ore" : "chromium ore",
+  "item.notitlemod.cobalt_ore" : "cobalt ore",
+  "item.notitlemod.lead_ore" : "lead ore",
+  "item.notitlemod.silver_ore" : "silver ore",
+  "item.notitlemod.tin_ore" : "tin ore",
+  "item.notitlemod.titanium_ore" : "titanium ore",
+  "item.notitlemod.tungsten_ore" : "tungsten ore",
+  "item.notitlemod.zinc_ore" : "zinc ore",
   "item.notitlemod.copper_dust": "Copper Dust",
   "item.notitlemod.iron_dust" : "Iron Dust",
   "item.notitlemod.zinc_dust" : "Zinc Dust",
