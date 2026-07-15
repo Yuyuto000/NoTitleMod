@@ -1,3 +1,11 @@
 {
-  "item.notitlemod.copper_dust": "銅粉"
+  "item.notitlemod.copper_dust": "銅粉",
+  "item.notitlemod.iron_dust": "鉄粉",
+  "item.notitlemod.zinc_dust": "亜鉛粉",
+  "item.notitlemod.tin_dust": "錫粉",
+  "item.notitlemod.raw_rubber": "天然ゴム",
+  "item.notitlemod.rubber": "ゴム",
+  "item.notitlemod.limestone": "石灰石",
+  "item.notitlemod.magnetite": "磁鉄鉱",
+  "creativetab.no_title_industry_tab": "No Title 工業"
 }

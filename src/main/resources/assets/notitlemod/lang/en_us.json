@@ -1,3 +1,11 @@
 {
-  "item.notitlemod.copper_dust": "Copper Dust"
+  "item.notitlemod.copper_dust": "Copper Dust",
+  "item.notitlemod.iron_dust" : "Iron Dust",
+  "item.notitlemod.zinc_dust" : "Zinc Dust",
+  "item.notitlemod.tin_dust" : "Tin Dust",
+  "item.notitlemod.raw_rubber" : "Raw Rubber",
+  "item.notitlemod.rubber" : "Rubber",
+  "item.notitlemod.limestone" : "Lime Stone",
+  "item.notitlemod.magnetite" : "Magnetite",
+  "creativetab.no_title_industry_tab": "No Titles industry"
 }
