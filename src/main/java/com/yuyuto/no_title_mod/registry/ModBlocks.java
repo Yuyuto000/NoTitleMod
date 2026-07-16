@@ -54,19 +54,19 @@ public class ModBlocks {
     }
 
     //鉱石登録
-    public static final RegistryObject<Block> ZINC_ORE = registryOre("zinc_ore");
-    public static final RegistryObject<Block> TIN_ORE = registryOre("tin_ore");
-    public static final RegistryObject<Block> MAGNETITE_ORE = registryOre("magnetite_ore");
-    public static final RegistryObject<Block> LEAD_ORE = registryOre("lead_ore");
-    public static final RegistryObject<Block> SILVER_ORE = registryOre("silver_ore");
-    public static final RegistryObject<Block> ALUMINUM_ORE = registryOre("aluminum_ore");
-    public static final RegistryObject<Block> TITANIUM_ORE = registryOre("titanium_ore");
+    public static final RegistryObject<Block> ZINC_ORE = registryOre("zinc_ore"); //
+    public static final RegistryObject<Block> TIN_ORE = registryOre("tin_ore"); //
+    public static final RegistryObject<Block> MAGNETITE_ORE = registryOre("magnetite_ore"); //
+    public static final RegistryObject<Block> LEAD_ORE = registryOre("lead_ore"); //
+    public static final RegistryObject<Block> SILVER_ORE = registryOre("silver_ore"); //
+    public static final RegistryObject<Block> ALUMINUM_ORE = registryOre("aluminum_ore"); //
+    public static final RegistryObject<Block> TITANIUM_ORE = registryOre("titanium_ore"); //
     public static final RegistryObject<Block> NICKEL_ORE = registryOre("nickel_ore");
-    public static final RegistryObject<Block> CHROMIUM_ORE = registryOre("chromium_ore");
-    public static final RegistryObject<Block> COBALT_ORE = registryOre("cobalt_ore");
-    public static final RegistryObject<Block> MAGNESIUM_ORE = registryOre("magnesium_ore");
-    public static final RegistryObject<Block> LITHIUM_ORE = registryOre("lithium_ore");
-    public static final RegistryObject<Block> TUNGSTEN_ORE = registryOre("tungsten_ore");
+    public static final RegistryObject<Block> CHROMIUM_ORE = registryOre("chromium_ore"); //
+    public static final RegistryObject<Block> COBALT_ORE = registryOre("cobalt_ore"); //
+    public static final RegistryObject<Block> MAGNESIUM_ORE = registryOre("magnesium_ore"); //
+    public static final RegistryObject<Block> LITHIUM_ORE = registryOre("lithium_ore"); //
+    public static final RegistryObject<Block> TUNGSTEN_ORE = registryOre("tungsten_ore"); //
 
     //===========================弄らない==============================
     public static void register(IEventBus eventBus){
