@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:block/cube_all",
   "textures": {
-    "all": "notitlemod:block/alumium_ore"
+    "all": "notitlemod:block/aluminum_ore"
   }
 }

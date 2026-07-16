@@ -46,7 +46,6 @@ public class ModItems {
     public static final RegistryObject<Item> RAW_TUNGSTEN = registryNormalMaterial("raw_tungsten");
     public static final RegistryObject<Item> ZINC_INGOT = registryNormalMaterial("zinc_ingot");
     public static final RegistryObject<Item> TIN_INGOT = registryNormalMaterial("tin_ingot");
-    public static final RegistryObject<Item> MAGNETITE_INGOT = registryNormalMaterial("magnetite_ingot");
     public static final RegistryObject<Item> LEAD_INGOT = registryNormalMaterial("lead_ingot");
     public static final RegistryObject<Item> SILVER_INGOT = registryNormalMaterial("silver_ingot");
     public static final RegistryObject<Item> ALUMINUM_INGOT = registryNormalMaterial("aluminum_ingot");
