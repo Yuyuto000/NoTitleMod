@@ -33,7 +33,6 @@ public class ModItems {
     // 工業アイテム登録
     public static final RegistryObject<Item> RAW_ZINC = registryNormalMaterial("raw_zinc");
     public static final RegistryObject<Item> RAW_TIN = registryNormalMaterial("raw_tin");
-    public static final RegistryObject<Item> RAW_MAGNETITE = registryNormalMaterial("raw_magnetite");
     public static final RegistryObject<Item> RAW_LEAD = registryNormalMaterial("raw_lead");
     public static final RegistryObject<Item> RAW_SILVER = registryNormalMaterial("raw_silver");
     public static final RegistryObject<Item> RAW_ALUMINUM = registryNormalMaterial("raw_aluminum");
