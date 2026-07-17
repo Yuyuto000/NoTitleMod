@@ -70,7 +70,7 @@ public class ModItems {
     public static final RegistryObject<Item> MAGNETITE = registryNormalMaterial("magnetite");
 
     //魔術系登録
-    public static final RegistryObject<Item> MAGICANIUM_ORE = registryNormalMaterial("magicanium_ore");
+    public static final RegistryObject<Item> RAW_MAGICANIUM = registryNormalMaterial("raw_magicanium");
     public static final RegistryObject<Item> MAGICANIUM_INGOT = registryNormalMaterial("magicanium_ingot");
 
     //============================この範囲は弄らない=============================
