@@ -57,12 +57,21 @@ public class ModItems {
     public static final RegistryObject<Item> TUNGSTEN_INGOT = registryNormalMaterial("tungsten_ingot");
     public static final RegistryObject<Item> COPPER_DUST = registryNormalMaterial("copper_dust");
     public static final RegistryObject<Item> IRON_DUST = registryNormalMaterial("iron_dust");
-    public static final RegistryObject<Item> ZINC_DUST = registryNormalMaterial("zinc_dust");
+    public static final RegistryObject<Item> ALUMINUM_DUST = registryNormalMaterial("aluminum_dust");
+    public static final RegistryObject<Item> CHROMIUM_DUST = registryNormalMaterial("chromium_dust");
+    public static final RegistryObject<Item> LEAD_DUST = registryNormalMaterial("lead_dust");
+    public static final RegistryObject<Item> MAGNESIUM_DUST = registryNormalMaterial("magnesium_dust");
+    public static final RegistryObject<Item> NICKEL_DUST = registryNormalMaterial("nickel_dust");
     public static final RegistryObject<Item> TIN_DUST = registryNormalMaterial("tin_dust");
+    public static final RegistryObject<Item> ZINC_DUST = registryNormalMaterial("zinc_dust");
     public static final RegistryObject<Item> RAW_RUBBER = registryNormalMaterial("raw_rubber");
     public static final RegistryObject<Item> RUBBER = registryNormalMaterial("rubber");
     public static final RegistryObject<Item> LIMESTONE = registryNormalMaterial("limestone");
     public static final RegistryObject<Item> MAGNETITE = registryNormalMaterial("magnetite");
+
+    //魔術系登録
+    public static final RegistryObject<Item> MAGICANIUM_ORE = registryNormalMaterial("magicanium_ore");
+    public static final RegistryObject<Item> MAGICANIUM_INGOT = registryNormalMaterial("magicanium_ingot");
 
     //============================この範囲は弄らない=============================
     public static void register(IEventBus eventBus) {
