@@ -68,6 +68,15 @@ public class ModBlocks {
     public static final RegistryObject<Block> LITHIUM_ORE = registryOre("lithium_ore"); //
     public static final RegistryObject<Block> TUNGSTEN_ORE = registryOre("tungsten_ore"); //
 
+    // 工業
+    public static final RegistryObject<Block> WATER_WHEEL = registerBlock(
+            "water_wheel", () ->
+                    new Block(
+                            BlockBehaviour.Properties.of()
+                                    .mapColor(MapColor.WOOD)
+                                    .sound(SoundType.WOOD)
+                    ));
+
     //===========================弄らない==============================
     public static void register(IEventBus eventBus){
         BLOCKS.register(eventBus);

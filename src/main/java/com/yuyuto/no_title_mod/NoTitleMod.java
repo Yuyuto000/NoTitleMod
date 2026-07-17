@@ -1,5 +1,6 @@
 package com.yuyuto.no_title_mod;
 
+import com.yuyuto.no_title_mod.registry.ModBlockEntities;
 import com.yuyuto.no_title_mod.registry.ModBlocks;
 import com.yuyuto.no_title_mod.registry.ModCreativeTabs;
 import com.yuyuto.no_title_mod.registry.ModItems;
@@ -18,6 +19,7 @@ public class NoTitleMod {
 
         ModItems.register(modEventBus);
         ModBlocks.register(modEventBus);
+        ModBlockEntities.register(modEventBus);
         ModCreativeTabs.register(modEventBus);
     }
 }
