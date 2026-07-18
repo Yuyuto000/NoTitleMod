@@ -7,6 +7,7 @@ import com.yuyuto.no_title_mod.registry.ModItems;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import software.bernie.geckolib.GeckoLib;
 
 @Mod(NoTitleMod.MODID)
 public class NoTitleMod {
@@ -15,6 +16,7 @@ public class NoTitleMod {
 
     public NoTitleMod() {
 
+        GeckoLib.initialize();
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
 
         ModItems.register(modEventBus);
