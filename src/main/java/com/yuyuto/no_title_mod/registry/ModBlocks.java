@@ -53,6 +53,22 @@ public class ModBlocks {
                 ));
     }
 
+    /**
+     * 工業機械ブロック登録ヘルパー関数
+     * @param blockId ブロックの一意のID
+     * @return String型、ツール必須使用に設定済みのブロック登録コード
+     */
+    private static RegistryObject<Block> registryMachine(String blockId){
+        return registerBlock(blockId, () ->
+                new Block(
+                        BlockBehaviour.Properties.of()
+                                .mapColor(MapColor.STONE)
+                                .strength(3.0f, 3.0f)
+                                .requiresCorrectToolForDrops()
+                                .sound(SoundType.STONE)
+                ));
+    }
+
     //鉱石登録
     public static final RegistryObject<Block> ZINC_ORE = registryOre("zinc_ore"); //
     public static final RegistryObject<Block> TIN_ORE = registryOre("tin_ore"); //
@@ -67,15 +83,10 @@ public class ModBlocks {
     public static final RegistryObject<Block> MAGNESIUM_ORE = registryOre("magnesium_ore"); //
     public static final RegistryObject<Block> LITHIUM_ORE = registryOre("lithium_ore"); //
     public static final RegistryObject<Block> TUNGSTEN_ORE = registryOre("tungsten_ore"); //
+    public static final RegistryObject<Block> SULFUR_ORE = registryOre("sulfur_ore"); //
 
     // 工業機械
-    public static final RegistryObject<Block> WATER_WHEEL = registerBlock(
-            "water_wheel", () ->
-                    new Block(
-                            BlockBehaviour.Properties.of()
-                                    .mapColor(MapColor.WOOD)
-                                    .sound(SoundType.WOOD)
-                    ));
+    public static final RegistryObject<Block> CRUSHER = registryMachine("crusher");
 
     //===========================弄らない==============================
     public static void register(IEventBus eventBus){

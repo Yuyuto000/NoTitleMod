@@ -1,0 +1,35 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "side": "no_title_mod:block/machine_side",
+    "front": "no_title_mod:block/crusher_front",
+    "top": "no_title_mod:block/machine_top"
+  },
+
+  "elements": [
+    {
+      "from": [0,0,0],
+      "to": [16,16,16],
+      "faces": {
+        "north": {
+          "texture": "#front"
+        },
+        "south": {
+          "texture": "#side"
+        },
+        "east": {
+          "texture": "#side"
+        },
+        "west": {
+          "texture": "#side"
+        },
+        "up": {
+          "texture": "#top"
+        },
+        "down": {
+          "texture": "#side"
+        }
+      }
+    }
+  ]
+}

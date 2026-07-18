@@ -1,7 +1,7 @@
 package com.yuyuto.no_title_mod.registry;
 
 import com.yuyuto.no_title_mod.NoTitleMod;
-import com.yuyuto.no_title_mod.industry.waterwheel.WaterWheelBlockEntity;
+import com.yuyuto.no_title_mod.industry.crusher.CrusherBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
@@ -20,11 +20,11 @@ public class ModBlockEntities {
             DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, NoTitleMod.MODID);
     //====================================================================================
 
-    public static final RegistryObject<BlockEntityType<WaterWheelBlockEntity>> WATER_WHEEL =
-            BLOCK_ENTITIES.register("water_wheel", () ->
+    public static final RegistryObject<BlockEntityType<CrusherBlockEntity>> CRUSHER =
+            BLOCK_ENTITIES.register("crusher", () ->
                     BlockEntityType.Builder.of(
-                            WaterWheelBlockEntity::new,
-                            ModBlocks.WATER_WHEEL.get()
+                            CrusherBlockEntity::new,
+                            ModBlocks.CRUSHER.get()
                     ).build(null)
             );
     //====================================ここは弄らない=====================================

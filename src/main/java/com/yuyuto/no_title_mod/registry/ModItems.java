@@ -20,7 +20,7 @@ public class ModItems {
             DeferredRegister.create(ForgeRegistries.ITEMS, NoTitleMod.MODID);
     //========================================================================
     /**
-     * 基本素材登録メソッド。
+     * 基本素材登録ヘルパーメソッド。
      * itemIdにはString型でIDを記述。
      * @param itemId　ItemのID。
      * @return スタック数64に設定済みのアイテム登録メソッド
@@ -28,6 +28,17 @@ public class ModItems {
     private static RegistryObject<Item> registryNormalMaterial(String itemId){
         return ITEMS.register(itemId, () ->
                 new Item(new Item.Properties().stacksTo(64)));
+    }
+
+    /**
+     * ツール登録ヘルパーメソッド。
+     * @param toolId 登録するItemのIDを記述
+     * @param durability 耐久値
+     * @return スタック不可能の任意の耐久値を持つアイテムの登録メソッド
+     */
+    private static RegistryObject<Item> registryNormalTool(String toolId, int durability){
+        return ITEMS.register(toolId, () ->
+                new Item(new Item.Properties().stacksTo(1).durability(durability)));
     }
 
     // 工業アイテム登録
@@ -43,6 +54,7 @@ public class ModItems {
     public static final RegistryObject<Item> RAW_MAGNESIUM = registryNormalMaterial("raw_magnesium");
     public static final RegistryObject<Item> RAW_LITHIUM = registryNormalMaterial("raw_lithium");
     public static final RegistryObject<Item> RAW_TUNGSTEN = registryNormalMaterial("raw_tungsten");
+
     public static final RegistryObject<Item> ZINC_INGOT = registryNormalMaterial("zinc_ingot");
     public static final RegistryObject<Item> TIN_INGOT = registryNormalMaterial("tin_ingot");
     public static final RegistryObject<Item> LEAD_INGOT = registryNormalMaterial("lead_ingot");
@@ -55,6 +67,7 @@ public class ModItems {
     public static final RegistryObject<Item> MAGNESIUM_INGOT = registryNormalMaterial("magnesium_ingot");
     public static final RegistryObject<Item> LITHIUM_INGOT = registryNormalMaterial("lithium_ingot");
     public static final RegistryObject<Item> TUNGSTEN_INGOT = registryNormalMaterial("tungsten_ingot");
+
     public static final RegistryObject<Item> COPPER_DUST = registryNormalMaterial("copper_dust");
     public static final RegistryObject<Item> IRON_DUST = registryNormalMaterial("iron_dust");
     public static final RegistryObject<Item> ALUMINUM_DUST = registryNormalMaterial("aluminum_dust");
@@ -64,10 +77,14 @@ public class ModItems {
     public static final RegistryObject<Item> NICKEL_DUST = registryNormalMaterial("nickel_dust");
     public static final RegistryObject<Item> TIN_DUST = registryNormalMaterial("tin_dust");
     public static final RegistryObject<Item> ZINC_DUST = registryNormalMaterial("zinc_dust");
+
     public static final RegistryObject<Item> RAW_RUBBER = registryNormalMaterial("raw_rubber");
     public static final RegistryObject<Item> RUBBER = registryNormalMaterial("rubber");
     public static final RegistryObject<Item> LIMESTONE = registryNormalMaterial("limestone");
     public static final RegistryObject<Item> MAGNETITE = registryNormalMaterial("magnetite");
+
+    //工業ツール系
+    public static final RegistryObject<Item> CRUSHER_HAMMER = registryNormalTool("crusher_hammer", 250);
 
     //魔術系登録
     public static final RegistryObject<Item> RAW_MAGICANIUM = registryNormalMaterial("raw_magicanium");
