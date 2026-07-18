@@ -83,7 +83,6 @@ public class ModBlocks {
     public static final RegistryObject<Block> MAGNESIUM_ORE = registryOre("magnesium_ore"); //
     public static final RegistryObject<Block> LITHIUM_ORE = registryOre("lithium_ore"); //
     public static final RegistryObject<Block> TUNGSTEN_ORE = registryOre("tungsten_ore"); //
-    public static final RegistryObject<Block> SULFUR_ORE = registryOre("sulfur_ore"); //
 
     // 工業機械
     public static final RegistryObject<Block> CRUSHER = registryMachine("crusher");
