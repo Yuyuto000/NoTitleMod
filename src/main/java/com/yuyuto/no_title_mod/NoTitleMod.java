@@ -21,7 +21,7 @@ public class NoTitleMod {
 
     public NoTitleMod() {
         GeckoLib.initialize();
-        IEventBus modEventBus = FMLJavaModLoadingContext    .get().getModEventBus();
+        IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
         ModItems.register(modEventBus);
         ModBlocks.register(modEventBus);
         ModBlockEntities.register(modEventBus);
