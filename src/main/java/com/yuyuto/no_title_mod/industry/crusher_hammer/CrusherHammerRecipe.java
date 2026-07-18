@@ -63,8 +63,8 @@ public class CrusherHammerRecipe implements CraftingRecipe {
     }
 
     @Override
-    public @NotNull ItemStack getResultItem(@NotNull RegistryAccess registryAccess){
-        return new ItemStack(ModItems.IRON_DUST.get());
+    public @NotNull ItemStack getResultItem(@NotNull RegistryAccess registryAccess) {
+        return ItemStack.EMPTY;
     }
 
     @Override
