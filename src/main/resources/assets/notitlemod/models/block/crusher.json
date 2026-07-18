@@ -1,9 +1,9 @@
 {
   "parent": "minecraft:block/cube",
   "textures": {
-    "side": "no_title_mod:block/machine_side",
-    "front": "no_title_mod:block/crusher_front",
-    "top": "no_title_mod:block/machine_top"
+    "side": "notitlemod:block/machine_side",
+    "front": "notitlemod:block/crusher_front",
+    "top": "notitlemod:block/machine_top"
   },
 
   "elements": [
