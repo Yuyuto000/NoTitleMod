@@ -17,13 +17,19 @@ public class NoTitleMod {
         GeckoLib.initialize();
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
         ModItems.register(modEventBus);
+        System.out.println("[YUYUTO_TECHNOLOGIES][DEBUG] Item Loaded successful");
         ModBlocks.register(modEventBus);
+        System.out.println("[YUYUTO_TECHNOLOGIES][DEBUG] Block Loaded successful");
         ModBlockEntities.register(modEventBus);
+        System.out.println("[YUYUTO_TECHNOLOGIES][DEBUG] BlockEntity Loaded successful");
         ModCreativeTabs.register(modEventBus);
+        System.out.println("[YUYUTO_TECHNOLOGIES][DEBUG] CreativeTab Loaded successful");
         ModRecipeSerializers.register(modEventBus);
+        System.out.println("[YUYUTO_TECHNOLOGIES][DEBUG] RecipeSerializer Loaded successful");
         ModRecipeTypes.register(modEventBus);
+        System.out.println("[YUYUTO_TECHNOLOGIES][DEBUG] RecipeType Loaded successful");
         MinecraftForge.EVENT_BUS.register(ModCraftingEvent.class);
-        System.out.println("[YUYUTO_TECHNOLOGIES_][DEBUG] NoTitleMod(NTMod) Loaded successful");
+        System.out.println("[YUYUTO_TECHNOLOGIES][DEBUG] NoTitleMod(NTMod) Loaded successful");
     }
 
 }

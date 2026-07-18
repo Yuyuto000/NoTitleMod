@@ -2,7 +2,7 @@
   "type": "notitlemod:crusher_hammer",
 
   "ingredient": {
-    "item": "minecraft:raw_copper"
+    "item": "notitlemod:raw_copper"
   },
 
   "result": {

@@ -2,7 +2,7 @@
   "type": "notitlemod:crusher_hammer",
 
   "ingredient": {
-    "item": "minecraft:raw_tin"
+    "item": "notitlemod:raw_tin"
   },
 
   "result": {

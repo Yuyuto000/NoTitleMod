@@ -2,7 +2,7 @@
   "type": "notitlemod:crusher_hammer",
 
   "ingredient": {
-    "item": "minecraft:raw_magnesium"
+    "item": "notitlemod:raw_magnesium"
   },
 
   "result": {
