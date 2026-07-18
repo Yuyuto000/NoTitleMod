@@ -1,0 +1,12 @@
+{
+  "type": "notitlemod:crusher_hammer",
+
+  "ingredient": {
+    "item": "minecraft:raw_chromium"
+  },
+
+  "result": {
+    "item": "notitlemod:chromium_dust",
+    "count": 1
+  }
+}

@@ -1,7 +1,8 @@
 {
   "variants": {
-    "": {
-      "model": "no_title_mod:block/crusher"
-    }
+    "facing=north": { "model": "notitlemod:block/crusher" },
+    "facing=east":  { "model": "notitlemod:block/crusher", "y": 90 },
+    "facing=south": { "model": "notitlemod:block/crusher", "y": 180 },
+    "facing=west":  { "model": "notitlemod:block/crusher", "y": 270 }
   }
 }

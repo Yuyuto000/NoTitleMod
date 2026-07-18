@@ -1,0 +1,12 @@
+{
+  "type": "notitlemod:crusher_hammer",
+
+  "ingredient": {
+    "item": "minecraft:raw_nickel"
+  },
+
+  "result": {
+    "item": "notitlemod:nickel_dust",
+    "count": 1
+  }
+}

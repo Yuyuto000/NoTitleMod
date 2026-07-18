@@ -1,0 +1,12 @@
+{
+  "type": "notitlemod:crusher_hammer",
+
+  "ingredient": {
+    "item": "minecraft:raw_lead"
+  },
+
+  "result": {
+    "item": "notitlemod:copper_lead",
+    "count": 1
+  }
+}

@@ -11,6 +11,7 @@ public class CrusherRecipeLibrary {
         CrusherRecipeManager.addRecipe(new CrusherRecipe(Items.RAW_COPPER, ModItems.COPPER_DUST.get()));
         CrusherRecipeManager.addRecipe(new CrusherRecipe(ModItems.RAW_CHROMIUM.get(), ModItems.CHROMIUM_DUST.get()));
         CrusherRecipeManager.addRecipe(new CrusherRecipe(ModItems.RAW_MAGNESIUM.get(), ModItems.MAGNESIUM_DUST.get()));
+        CrusherRecipeManager.addRecipe(new CrusherRecipe(ModItems.RAW_LEAD.get(), ModItems.LEAD_DUST.get()));
         CrusherRecipeManager.addRecipe(new CrusherRecipe(ModItems.RAW_NICKEL.get(), ModItems.NICKEL_DUST.get()));
         CrusherRecipeManager.addRecipe(new CrusherRecipe(ModItems.RAW_TIN.get(), ModItems.TIN_DUST.get()));
         CrusherRecipeManager.addRecipe(new CrusherRecipe(ModItems.RAW_ZINC.get(), ModItems.ZINC_DUST.get()));

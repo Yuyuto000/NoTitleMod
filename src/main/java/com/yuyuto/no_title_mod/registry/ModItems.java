@@ -82,10 +82,8 @@ public class ModItems {
     public static final RegistryObject<Item> RUBBER = registryNormalMaterial("rubber");
     public static final RegistryObject<Item> LIMESTONE = registryNormalMaterial("limestone");
     public static final RegistryObject<Item> MAGNETITE = registryNormalMaterial("magnetite");
-
     //工業ツール系
     public static final RegistryObject<Item> CRUSHER_HAMMER = registryNormalTool("crusher_hammer", 250);
-
     //魔術系登録
     public static final RegistryObject<Item> RAW_MAGICANIUM = registryNormalMaterial("raw_magicanium");
     public static final RegistryObject<Item> MAGICANIUM_INGOT = registryNormalMaterial("magicanium_ingot");

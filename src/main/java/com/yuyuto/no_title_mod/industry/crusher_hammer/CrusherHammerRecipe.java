@@ -3,9 +3,6 @@ package com.yuyuto.no_title_mod.industry.crusher_hammer;
 import com.yuyuto.no_title_mod.registry.ModItems;
 import com.yuyuto.no_title_mod.registry.ModRecipeSerializers;
 import com.yuyuto.no_title_mod.registry.ModRecipeTypes;
-import com.yuyuto.no_title_mod.tools.ToolRecipe;
-import com.yuyuto.no_title_mod.tools.ToolRecipeManager;
-import com.yuyuto.no_title_mod.tools.ToolTypes;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.CraftingContainer;
@@ -17,44 +14,50 @@ import org.jetbrains.annotations.NotNull;
 public class CrusherHammerRecipe implements CraftingRecipe {
 
     private final ResourceLocation id;
+    private final Ingredient input;
+    private final ItemStack result;
 
-    public CrusherHammerRecipe(ResourceLocation id, CraftingBookCategory craftingBookCategory) {
+    public CrusherHammerRecipe(ResourceLocation id, Ingredient input, ItemStack result) {
         this.id = id;
+        this.input = input;
+        this.result = result;
+    }
 
+    public Ingredient getInput() {
+        return input;
+    }
+
+    public ItemStack getResult() {
+        return result;
     }
 
     @Override
-    public boolean matches(@NotNull CraftingContainer container, @NotNull Level level){
+    public boolean matches(@NotNull CraftingContainer container, @NotNull Level level) {
 
-        boolean hasInput = false;
-        boolean hasTool = false;
+        int inputCount = 0;
+        int hammerCount = 0;
 
-        for(int i = 0; i < container.getContainerSize(); i++){
+        for (int i = 0; i < container.getContainerSize(); i++) {
 
             ItemStack stack = container.getItem(i);
-            ToolRecipe recipe = ToolRecipeManager.find(stack, ToolTypes.CRUSHER);
-            if (recipe != null) {
-                hasInput = true;
+            if (stack.isEmpty()) continue;
+            if (input.test(stack)) {
+                inputCount++;
+                continue;
             }
-
-            if(stack.is(ModItems.CRUSHER_HAMMER.get())){
-                hasTool = true;
+            if (stack.is(ModItems.CRUSHER_HAMMER.get())) {
+                hammerCount++;
+                continue;
             }
+            // それ以外のアイテムがあれば失敗
+            return false;
         }
-
-        return hasInput && hasTool;
+        return inputCount == 1 && hammerCount == 1;
     }
 
     @Override
     public @NotNull ItemStack assemble(@NotNull CraftingContainer container, @NotNull RegistryAccess registryAccess) {
-        for (int i = 0; i < container.getContainerSize(); i++) {
-            ItemStack stack = container.getItem(i);
-            ToolRecipe recipe = ToolRecipeManager.find(stack, ToolTypes.CRUSHER);
-            if (recipe != null) {
-                return recipe.createResult();
-            }
-        }
-        return ItemStack.EMPTY;
+        return result.copy();
     }
 
     @Override
@@ -64,7 +67,7 @@ public class CrusherHammerRecipe implements CraftingRecipe {
 
     @Override
     public @NotNull ItemStack getResultItem(@NotNull RegistryAccess registryAccess) {
-        return ItemStack.EMPTY;
+        return result.copy();
     }
 
     @Override
@@ -74,12 +77,12 @@ public class CrusherHammerRecipe implements CraftingRecipe {
 
     @Override
     public @NotNull RecipeSerializer<?> getSerializer(){
-        return ModRecipeSerializers.CRUSHER_HAMMER;
+        return ModRecipeSerializers.CRUSHER_HAMMER.get();
     }
 
     @Override
     public @NotNull RecipeType<?> getType(){
-        return ModRecipeTypes.CRUSHER_HAMMER;
+        return ModRecipeTypes.CRUSHER_HAMMER.get();
     }
 
     @Override

@@ -1,0 +1,12 @@
+{
+  "type": "notitlemod:crusher_hammer",
+
+  "ingredient": {
+    "item": "minecraft:raw_magnesium"
+  },
+
+  "result": {
+    "item": "notitlemod:magnesium_dust",
+    "count": 1
+  }
+}

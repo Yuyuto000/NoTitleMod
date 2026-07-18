@@ -1,35 +1,10 @@
 {
-  "parent": "minecraft:block/cube",
+  "parent": "minecraft:block/orientable",
   "textures": {
-    "side": "notitlemod:block/machine_side",
     "front": "notitlemod:block/crusher_front",
-    "top": "notitlemod:block/machine_top"
-  },
-
-  "elements": [
-    {
-      "from": [0,0,0],
-      "to": [16,16,16],
-      "faces": {
-        "north": {
-          "texture": "#front"
-        },
-        "south": {
-          "texture": "#side"
-        },
-        "east": {
-          "texture": "#side"
-        },
-        "west": {
-          "texture": "#side"
-        },
-        "up": {
-          "texture": "#top"
-        },
-        "down": {
-          "texture": "#side"
-        }
-      }
-    }
-  ]
+    "side": "notitlemod:block/machine_side",
+    "top": "notitlemod:block/machine_top",
+    "bottom": "notitlemod:block/machine_side",
+    "particle": "notitlemod:block/machine_side"
+  }
 }

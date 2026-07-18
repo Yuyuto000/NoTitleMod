@@ -1,6 +1,7 @@
 package com.yuyuto.no_title_mod.registry;
 
 import com.yuyuto.no_title_mod.NoTitleMod;
+import com.yuyuto.no_title_mod.industry.crusher.CrusherBlock;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -53,22 +54,6 @@ public class ModBlocks {
                 ));
     }
 
-    /**
-     * 工業機械ブロック登録ヘルパー関数
-     * @param blockId ブロックの一意のID
-     * @return String型、ツール必須使用に設定済みのブロック登録コード
-     */
-    private static RegistryObject<Block> registryMachine(String blockId){
-        return registerBlock(blockId, () ->
-                new Block(
-                        BlockBehaviour.Properties.of()
-                                .mapColor(MapColor.STONE)
-                                .strength(3.0f, 3.0f)
-                                .requiresCorrectToolForDrops()
-                                .sound(SoundType.STONE)
-                ));
-    }
-
     //鉱石登録
     public static final RegistryObject<Block> ZINC_ORE = registryOre("zinc_ore"); //
     public static final RegistryObject<Block> TIN_ORE = registryOre("tin_ore"); //
@@ -85,7 +70,15 @@ public class ModBlocks {
     public static final RegistryObject<Block> TUNGSTEN_ORE = registryOre("tungsten_ore"); //
 
     // 工業機械
-    public static final RegistryObject<Block> CRUSHER = registryMachine("crusher");
+    public static final RegistryObject<Block> CRUSHER =
+            registerBlock("crusher",
+                    () -> new CrusherBlock(
+                            BlockBehaviour.Properties.of()
+                                    .mapColor(MapColor.STONE)
+                                    .strength(3f)
+                                    .requiresCorrectToolForDrops()
+                                    .sound(SoundType.STONE)
+                    ));
 
     //===========================弄らない==============================
     public static void register(IEventBus eventBus){

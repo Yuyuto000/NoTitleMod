@@ -1,0 +1,12 @@
+{
+  "type": "notitlemod:crusher_hammer",
+
+  "ingredient": {
+    "item": "minecraft:raw_tin"
+  },
+
+  "result": {
+    "item": "notitlemod:tin_dust",
+    "count": 1
+  }
+}
