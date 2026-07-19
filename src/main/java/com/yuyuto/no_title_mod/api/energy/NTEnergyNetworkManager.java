@@ -15,6 +15,7 @@ public class NTEnergyNetworkManager {
 
     private static final List<NTEnergyNetwork> networks = new ArrayList<>();
     public static @NotNull NTEnergyNetwork createNetwork(Level level, BlockPos startPos){
+
         NTEnergyNetwork network = new NTEnergyNetwork();
         Set<BlockPos> searched = new HashSet<>();
         search(level, startPos, network, searched);
@@ -49,25 +50,23 @@ public class NTEnergyNetworkManager {
         networks.remove(network);
     }
 
-    public static void rebuildNetwork(Level level, NTEnergyNetwork oldNetwork){
+    public static void rebuildNetwork(Level level, NTEnergyNetwork oldNetwork) {
 
-        if(oldNetwork == null){
+        if (oldNetwork == null) {
             return;
         }
-        INTEnergyNodeManagements generator = null;
-        for(INTEnergyNodeManagements member : oldNetwork.getMembers()){
-            if(member.getNode().getType() == NTEnergyNodeType.GENERATOR){
-                generator = member;
-                break;
+        List<BlockPos> generators = new ArrayList<>();
+        for (INTEnergyNodeManagements member : oldNetwork.getMembers()) {
+            if (member.getNode().getType() == NTEnergyNodeType.GENERATOR) {
+                generators.add(member.getNodePosition());
             }
         }
-        if(generator == null){
-            oldNetwork.clearNetwork();
-            return;
-        }
-        BlockPos generatorPos = generator.getNodePosition();
         oldNetwork.clearNetwork();
-        createNetwork(level, generatorPos);
+        for (BlockPos pos : generators) {
+            if (level.getBlockEntity(pos) instanceof EnergyGeneratorBlockEntity) {
+                createNetwork(level, pos);
+            }
+        }
     }
 
     public static void updateAround(Level level, BlockPos startPos){
