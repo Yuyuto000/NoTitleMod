@@ -61,6 +61,14 @@ public class CrusherBlockEntity extends BlockEntity implements INTEnergyNodeMana
         NTEnergyNetworkManager.updateAround(level, worldPosition);
     }
 
+    @Override
+    public void setRemoved() {
+        if (network != null) {
+            NTEnergyNetworkManager.rebuildNetwork(level, network);
+        }
+        super.setRemoved();
+    }
+
     // =======================NBT系は触れたらダメ=========================
     @Override
     protected void saveAdditional(CompoundTag tag){
@@ -80,7 +88,6 @@ public class CrusherBlockEntity extends BlockEntity implements INTEnergyNodeMana
         if (capability == ForgeCapabilities.ITEM_HANDLER){
             return itemHandler.cast();
         }
-
         return super.getCapability(capability);
     }
 
