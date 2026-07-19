@@ -92,8 +92,9 @@ public class NTEnergyNetworkManager {
         if(blockEntity == null){
             return;
         }
-        if(blockEntity instanceof INTEnergyNodeManagements){
-            searchGenerator(level,pos,searched);
+        if(blockEntity instanceof EnergyGeneratorBlockEntity generator){
+            generator.buildNetwork();
+            return;
         }
         if(blockEntity instanceof INTEnergyNodeManagements){
             for(Direction direction : Direction.values()){
