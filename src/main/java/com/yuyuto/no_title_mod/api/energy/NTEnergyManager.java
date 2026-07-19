@@ -26,7 +26,6 @@ public class NTEnergyManager {
     }
 
     public static double calculateCurrent(double voltage, double resistance){
-
         if (resistance == 0) return 0;
         return voltage / resistance;
     }
@@ -37,7 +36,7 @@ public class NTEnergyManager {
     }
 
     //消費後の残電力計算
-    public static double consumePower(double availablePower, double consumePower){
+    public static double decreasePower(double availablePower, double consumePower){
         double result = availablePower - consumePower;
         return Math.max(result, 0);
     }

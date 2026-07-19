@@ -6,7 +6,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
@@ -24,7 +23,6 @@ public class CrusherBlockEntity extends BlockEntity implements INTEnergyNodeMana
     private final ItemStackHandler inventory = new ItemStackHandler(2);
     private final LazyOptional<IItemHandler> itemHandler = LazyOptional.of(() -> inventory);
     private final NTEnergyNode energyNode = new NTEnergyNode();
-    private NTEnergyNetwork network;
 
     // ============================弄らない==============================
     public CrusherBlockEntity(BlockPos pos, BlockState state) {
@@ -34,17 +32,30 @@ public class CrusherBlockEntity extends BlockEntity implements INTEnergyNodeMana
 
     @Override
     public void connection(NTEnergyNetwork network) {
-        this.network = network;
     }
 
     @Override
     public void disconnect() {
-        this.network = null;
     }
 
     @Override
     public NTEnergyNode getNode(){
         return energyNode;
+    }
+
+    @Override
+    public BlockPos getNodePosition() {
+        return worldPosition;
+    }
+
+    @Override
+    public void updateEnergyNode() {
+    }
+
+    @Override
+    public void onLoad(){
+        super.onLoad();
+        NTEnergyNetworkManager.updateAround(level, worldPosition);
     }
 
     // =======================NBT系は触れたらダメ=========================
@@ -101,7 +112,7 @@ public class CrusherBlockEntity extends BlockEntity implements INTEnergyNodeMana
         });
     }
 
-    public static void tick(Level level, BlockPos pos, BlockState state, @NotNull CrusherBlockEntity entity) {
+    public static void tick(BlockPos pos, @NotNull CrusherBlockEntity entity) {
 
         entity.pullItem(pos);
         entity.pushItem(pos);
@@ -126,25 +137,10 @@ public class CrusherBlockEntity extends BlockEntity implements INTEnergyNodeMana
             input.shrink(1);
             inventory.setStackInSlot(1, recipe.createResult());
 
-            energyNode.setPower(NTEnergyManager.consumePower(
+            energyNode.setPower(NTEnergyManager.decreasePower(
                     energyNode.getPower(),
                     requiredPower
             ));
-        }
-    }
-
-    @Override
-    public void setRemoved(){
-        disconnectNetwork();
-        super.setRemoved();
-    }
-
-    public void disconnectNetwork(){
-        if (network != null){
-            NTEnergyNetwork oldNetwork = network;
-            oldNetwork.removeMember(this);
-            oldNetwork.checkNetwork();
-            network = null;
         }
     }
 }

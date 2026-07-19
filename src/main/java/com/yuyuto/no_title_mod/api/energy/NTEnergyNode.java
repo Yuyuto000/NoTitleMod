@@ -2,11 +2,6 @@ package com.yuyuto.no_title_mod.api.energy;
 
 import java.util.UUID;
 
-/**
- * NTEnergyクラス
- * これを各電気機械に持たせることで電力ネットワークのNodeとしても使えるようになる。
- */
-
 public class NTEnergyNode {
 
     private double voltage;
@@ -18,7 +13,7 @@ public class NTEnergyNode {
     private final UUID id;
 
     public NTEnergyNode(){
-        this.id = UUID.randomUUID();
+        id = UUID.randomUUID();
     }
 
     public double getVoltage() {

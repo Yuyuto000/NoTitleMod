@@ -1,23 +1,20 @@
 package com.yuyuto.no_title_mod.industry.energy_genertator;
 
-import com.yuyuto.no_title_mod.api.energy.INTEnergyNodeManagements;
-import com.yuyuto.no_title_mod.api.energy.NTEnergyNetwork;
-import com.yuyuto.no_title_mod.api.energy.NTEnergyNode;
-import com.yuyuto.no_title_mod.api.energy.NTEnergyNodeType;
+import com.yuyuto.no_title_mod.api.energy.*;
 import com.yuyuto.no_title_mod.registry.ModBlockEntities;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.NotNull;
 
-import java.util.HashSet;
-import java.util.Set;
-
-public class EnergyGeneratorBlockEntity extends BlockEntity implements INTEnergyNodeManagements {
+public class EnergyGeneratorBlockEntity extends BlockEntity implements INTEnergyNodeManagements, INTEnergyGenerator {
 
     private final NTEnergyNode energyNode = new NTEnergyNode();
     private NTEnergyNetwork network;
+
+    public EnergyGeneratorBlockEntity(BlockPos pos, BlockState state){
+        super(ModBlockEntities.ENERGY_GENERATOR.get(), pos, state);
+        energyNode.setType(NTEnergyNodeType.GENERATOR);
+    }
 
     @Override
     public void connection(NTEnergyNetwork network) {
@@ -35,51 +32,49 @@ public class EnergyGeneratorBlockEntity extends BlockEntity implements INTEnergy
     }
 
     @Override
-    public void setRemoved(){
-        disconnectNetwork();
-        super.setRemoved();
+    public BlockPos getNodePosition() {
+        return worldPosition;
     }
 
-    public void disconnectNetwork(){
-        if (network != null){
-            NTEnergyNetwork oldNetwork = network;
-            oldNetwork.removeMember(this);
-            oldNetwork.checkNetwork();
-            network = null;
-        }
+    @Override
+    public void onLoad(){
+        super.onLoad();
+        NTEnergyNetworkManager.updateAround(level, worldPosition);
     }
 
-    public EnergyGeneratorBlockEntity(BlockPos pos, BlockState state){
-        super(ModBlockEntities.ENERGY_GENERATOR.get(), pos, state);
-        energyNode.setType(NTEnergyNodeType.GENERATOR);
+    @Override
+    public void updateEnergyNode(){
+        energyNode.setPower(NTEnergyManager.calculatePower(energyNode.getVoltage(), energyNode.getCurrent()));
     }
 
     public void buildNetwork(){
-        if(network != null){
-            network.clearNetwork();
-        }
-        this.network = new NTEnergyNetwork();
-        Set<BlockPos> searched = new HashSet<>();
-        search(worldPosition, network, searched);
-    }
-
-    private void search(BlockPos pos, NTEnergyNetwork network, @NotNull Set<BlockPos> searched){
-        if (searched.contains(pos)){
+        if (level == null){
             return;
         }
-        searched.add(pos);
-
-        BlockEntity blockEntity = level.getBlockEntity(pos);
-        if (blockEntity == null){
-            return;
-        }
-        if (blockEntity instanceof INTEnergyNodeManagements manager){
-            network.addMember(manager);
-            for (Direction direction : Direction.values()){
-                BlockPos next = pos.relative(direction);
-                search(next, network, searched);
-            }
-        }
+        network = NTEnergyNetworkManager.createNetwork(level, worldPosition);
     }
 
+    @Override
+    public void setRemoved(){
+        if (network != null){
+            NTEnergyNetworkManager.removeNetwork(network);
+        }
+        super.setRemoved();
+    }
+
+    @Override
+    public void generateEnergy(){
+        double maxVoltage = 120;
+        if(energyNode.getVoltage() < maxVoltage){
+            energyNode.setVoltage(energyNode.getVoltage()+1);
+        }
+        energyNode.setResistance(10);
+        energyNode.setCurrent(NTEnergyManager.calculateCurrent(energyNode.getVoltage(), energyNode.getResistance()));
+        energyNode.setPower(NTEnergyManager.calculatePower(energyNode.getVoltage(), energyNode.getCurrent()));
+    }
+
+    @Override
+    public double getGeneratePower() {
+        return 500;
+    }
 }

@@ -7,20 +7,30 @@ public class NTEnergyNetwork {
 
     private final List<INTEnergyNodeManagements> members = new ArrayList<>();
 
+    public List<INTEnergyGenerator> getGenerators(){
+        List<INTEnergyGenerator> generators = new ArrayList<>();
+        for(INTEnergyNodeManagements member : members){
+            if(member instanceof INTEnergyGenerator generator){
+                generators.add(generator);
+            }
+        }
+        return generators;
+    }
+
     public void addMember(INTEnergyNodeManagements member){
-        if (!members.contains(member)){
+        if(!members.contains(member)){
             members.add(member);
             member.connection(this);
         }
     }
 
-    public void removeMember(INTEnergyNodeManagements member){
-        if (members.remove(member))
+    public void removeMember(INTEnergyNodeManagements member) {
+        if (members.remove(member)) {
             member.disconnect();
+        }
     }
 
     public void clearNetwork(){
-
         for(INTEnergyNodeManagements member : members){
             member.disconnect();
         }
@@ -31,25 +41,32 @@ public class NTEnergyNetwork {
         return members;
     }
 
-    public void checkNetwork(){
-        if(!isValid()){
-            clearNetwork();
-        }
+    public void tick(){
+        generate();
+        transfer();
+        updateNodes();
     }
 
-    public boolean isValid(){
-        boolean generator = false;
-        boolean connector = false;
-        boolean consumer = false;
-
+    private void generate(){
         for (INTEnergyNodeManagements member : members){
-            switch(member.getNode().getType()){
-                case GENERATOR -> generator = true;
-                case CONNECTOR -> connector = true;
-                case CONSUMER -> consumer = true;
+            if (member instanceof INTEnergyGenerator generator){
+                generator.generateEnergy();
             }
         }
-
-        return generator && connector && consumer;
     }
+
+    private void transfer(){
+        for (INTEnergyNodeManagements member : members){
+            if (member instanceof INTEnergyConnector connector){
+                connector.transferEnergy();
+            }
+        }
+    }
+
+    private void updateNodes(){
+        for (INTEnergyNodeManagements member : members){
+            member.updateEnergyNode();
+        }
+    }
+
 }
