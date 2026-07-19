@@ -53,8 +53,11 @@ public class CrusherBlockEntity extends BlockEntity implements INTEnergyNodeMana
     }
 
     @Override
-    public void onLoad(){
+    public void onLoad() {
         super.onLoad();
+        if (level == null || level.isClientSide) {
+            return;
+        }
         NTEnergyNetworkManager.updateAround(level, worldPosition);
     }
 
