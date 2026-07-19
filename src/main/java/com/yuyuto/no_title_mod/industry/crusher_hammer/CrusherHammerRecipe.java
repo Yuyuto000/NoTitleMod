@@ -2,14 +2,17 @@ package com.yuyuto.no_title_mod.industry.crusher_hammer;
 
 import com.yuyuto.no_title_mod.registry.ModItems;
 import com.yuyuto.no_title_mod.registry.ModRecipeSerializers;
-import com.yuyuto.no_title_mod.registry.ModRecipeTypes;
+import net.minecraft.core.NonNullList;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
+
+import static com.yuyuto.no_title_mod.NoTitleMod.LOGGER;
 
 public class CrusherHammerRecipe implements CraftingRecipe {
 
@@ -21,6 +24,7 @@ public class CrusherHammerRecipe implements CraftingRecipe {
         this.id = id;
         this.input = input;
         this.result = result;
+        LOGGER.info("CrusherHammer initialized");
     }
 
     public Ingredient getInput() {
@@ -52,7 +56,28 @@ public class CrusherHammerRecipe implements CraftingRecipe {
             // それ以外のアイテムがあれば失敗
             return false;
         }
+        LOGGER.info("matches");
         return inputCount == 1 && hammerCount == 1;
+    }
+
+    @Override
+    public @NotNull NonNullList<ItemStack> getRemainingItems(@NotNull CraftingContainer container) {
+
+        NonNullList<ItemStack> remaining = NonNullList.withSize(container.getContainerSize(), ItemStack.EMPTY);
+        for(int i = 0; i < container.getContainerSize(); i++){
+            ItemStack stack = container.getItem(i);
+            if(stack.is(ModItems.CRUSHER_HAMMER.get())){
+                ItemStack copy = stack.copy();
+                copy.hurt(1, RandomSource.create(), null);
+                if(copy.getDamageValue() >= copy.getMaxDamage()){
+                    remaining.set(i, ItemStack.EMPTY);
+                }
+                else{
+                    remaining.set(i, copy);
+                }
+            }
+        }
+        return remaining;
     }
 
     @Override
@@ -82,7 +107,7 @@ public class CrusherHammerRecipe implements CraftingRecipe {
 
     @Override
     public @NotNull RecipeType<?> getType(){
-        return ModRecipeTypes.CRUSHER_HAMMER.get();
+        return RecipeType.CRAFTING;
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.yuyuto.no_title_mod.industry.crusher;
 
+import com.yuyuto.no_title_mod.NoTitleMod;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -20,6 +21,7 @@ public class CrusherBlock extends Block implements EntityBlock {
                 this.stateDefinition.any()
                         .setValue(FACING, Direction.NORTH)
         );
+        NoTitleMod.LOGGER.info("CrusherBlock initialized");
     }
     public static final DirectionProperty FACING =
             BlockStateProperties.HORIZONTAL_FACING;

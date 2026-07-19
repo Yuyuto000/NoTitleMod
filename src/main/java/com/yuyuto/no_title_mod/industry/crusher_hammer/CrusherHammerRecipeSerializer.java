@@ -1,6 +1,7 @@
 package com.yuyuto.no_title_mod.industry.crusher_hammer;
 
 import com.google.gson.JsonObject;
+import com.yuyuto.no_title_mod.NoTitleMod;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
@@ -14,12 +15,14 @@ public class CrusherHammerRecipeSerializer implements RecipeSerializer<CrusherHa
     @Override
     public @NotNull CrusherHammerRecipe fromJson(@NotNull ResourceLocation id,
                                                  @NotNull JsonObject json) {
+        NoTitleMod.LOGGER.info("Loading Crusher Recipe: {}", id);
 
         Ingredient ingredient = Ingredient.fromJson(json.get("ingredient"));
 
         ItemStack result = net.minecraft.world.item.crafting.ShapedRecipe
                 .itemStackFromJson(json.getAsJsonObject("result"));
 
+        NoTitleMod.LOGGER.info("Ingredient={} Result={}", ingredient, result);
         return new CrusherHammerRecipe(id, ingredient, result);
     }
 

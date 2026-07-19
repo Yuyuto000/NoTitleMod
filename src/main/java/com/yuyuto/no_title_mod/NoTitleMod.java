@@ -29,8 +29,6 @@ public class NoTitleMod {
         NoTitleMod.LOGGER.info("[YUYUTO_TECHNOLOGIES][INFO] CreativeTab Loaded successful");
         ModRecipeSerializers.register(modEventBus);
         NoTitleMod.LOGGER.info("[YUYUTO_TECHNOLOGIES][INFO] RecipeSerializer Loaded successful");
-        ModRecipeTypes.register(modEventBus);
-        NoTitleMod.LOGGER.info("[YUYUTO_TECHNOLOGIES][INFO] RecipeType Loaded successful");
         MinecraftForge.EVENT_BUS.register(ModCraftingEvent.class);
         NoTitleMod.LOGGER.info("[YUYUTO_TECHNOLOGIES][INFO] NoTitleMod(NTMod) Loaded successful");
     }

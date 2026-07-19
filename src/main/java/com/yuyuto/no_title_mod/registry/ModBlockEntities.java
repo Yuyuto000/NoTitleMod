@@ -19,7 +19,6 @@ public class ModBlockEntities {
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES =
             DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, NoTitleMod.MODID);
     //====================================================================================
-
     public static final RegistryObject<BlockEntityType<CrusherBlockEntity>> CRUSHER =
             BLOCK_ENTITIES.register("crusher", () ->
                     BlockEntityType.Builder.of(
