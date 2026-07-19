@@ -37,9 +37,13 @@ public class EnergyGeneratorBlockEntity extends BlockEntity implements INTEnergy
     }
 
     @Override
-    public void onLoad(){
+    public void onLoad() {
         super.onLoad();
-        NTEnergyNetworkManager.updateAround(level, worldPosition);
+        if (level == null || level.isClientSide) {
+            return;
+        }
+
+        buildNetwork();
     }
 
     @Override
