@@ -2,6 +2,8 @@ package com.yuyuto.no_title_mod.registry;
 
 import com.yuyuto.no_title_mod.NoTitleMod;
 import com.yuyuto.no_title_mod.industry.crusher.CrusherBlock;
+import com.yuyuto.no_title_mod.industry.energy_cable.EnergyCableBlock;
+import com.yuyuto.no_title_mod.industry.energy_genertator.EnergyGeneratorBlock;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -49,6 +51,7 @@ public class ModBlocks {
                         BlockBehaviour.Properties.of()
                                 .mapColor(MapColor.STONE)
                                 .strength(3.0f, 3.0f)
+                                .explosionResistance(4)
                                 .requiresCorrectToolForDrops()
                                 .sound(SoundType.STONE)
                 ));
@@ -76,8 +79,30 @@ public class ModBlocks {
                             BlockBehaviour.Properties.of()
                                     .mapColor(MapColor.STONE)
                                     .strength(3f)
+                                    .explosionResistance(3)
                                     .requiresCorrectToolForDrops()
                                     .sound(SoundType.STONE)
+                    ));
+
+    public static final RegistryObject<Block> ENERGY_GENERATOR =
+            registerBlock("energy_generator",
+                    () -> new EnergyGeneratorBlock(
+                            BlockBehaviour.Properties.of()
+                                    .mapColor(MapColor.STONE)
+                                    .strength(4f)
+                                    .explosionResistance(3)
+                                    .requiresCorrectToolForDrops()
+                                    .sound(SoundType.STONE)
+                    ));
+
+    public static final RegistryObject<Block> ENERGY_CABLE =
+            registerBlock("energy_cable",
+                    () -> new EnergyCableBlock(
+                            BlockBehaviour.Properties.of()
+                                    .sound(SoundType.STONE)
+                                    .strength(2f)
+                                    .explosionResistance(1)
+                                    .mapColor(MapColor.STONE)
                     ));
 
     //===========================弄らない==============================

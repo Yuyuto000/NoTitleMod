@@ -1,7 +1,6 @@
 package com.yuyuto.no_title_mod.industry.crusher;
 
-import com.yuyuto.no_title_mod.api.energy.NTEnergyManager;
-import com.yuyuto.no_title_mod.api.energy.NTEnergyNode;
+import com.yuyuto.no_title_mod.api.energy.*;
 import com.yuyuto.no_title_mod.registry.ModBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -19,16 +18,33 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
-public class CrusherBlockEntity extends BlockEntity {
+public class CrusherBlockEntity extends BlockEntity implements INTEnergyNodeManagements {
 
     private int progress;
     private final ItemStackHandler inventory = new ItemStackHandler(2);
     private final LazyOptional<IItemHandler> itemHandler = LazyOptional.of(() -> inventory);
     private final NTEnergyNode energyNode = new NTEnergyNode();
+    private NTEnergyNetwork network;
 
     // ============================弄らない==============================
     public CrusherBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.CRUSHER.get(), pos, state);
+        energyNode.setType(NTEnergyNodeType.CONSUMER);
+    }
+
+    @Override
+    public void connection(NTEnergyNetwork network) {
+        this.network = network;
+    }
+
+    @Override
+    public void disconnect() {
+        this.network = null;
+    }
+
+    @Override
+    public NTEnergyNode getNode(){
+        return energyNode;
     }
 
     // =======================NBT系は触れたらダメ=========================
@@ -114,6 +130,21 @@ public class CrusherBlockEntity extends BlockEntity {
                     energyNode.getPower(),
                     requiredPower
             ));
+        }
+    }
+
+    @Override
+    public void setRemoved(){
+        disconnectNetwork();
+        super.setRemoved();
+    }
+
+    public void disconnectNetwork(){
+        if (network != null){
+            NTEnergyNetwork oldNetwork = network;
+            oldNetwork.removeMember(this);
+            oldNetwork.checkNetwork();
+            network = null;
         }
     }
 }

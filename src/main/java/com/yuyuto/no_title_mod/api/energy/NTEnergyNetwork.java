@@ -5,19 +5,51 @@ import java.util.List;
 
 public class NTEnergyNetwork {
 
-    private final List<NTEnergyNode> nodes = new ArrayList<>();
+    private final List<INTEnergyNodeManagements> members = new ArrayList<>();
 
-    public void addNode(NTEnergyNode node){
-        if (!nodes.contains(node)){
-            nodes.add(node);
+    public void addMember(INTEnergyNodeManagements member){
+        if (!members.contains(member)){
+            members.add(member);
+            member.connection(this);
         }
     }
 
-    public void removeNode(NTEnergyNode node){
-        nodes.remove(node);
+    public void removeMember(INTEnergyNodeManagements member){
+        if (members.remove(member))
+            member.disconnect();
     }
 
-    public List<NTEnergyNode> getNodes(){
-        return nodes;
+    public void clearNetwork(){
+
+        for(INTEnergyNodeManagements member : members){
+            member.disconnect();
+        }
+        members.clear();
+    }
+
+    public List<INTEnergyNodeManagements> getMembers(){
+        return members;
+    }
+
+    public void checkNetwork(){
+        if(!isValid()){
+            clearNetwork();
+        }
+    }
+
+    public boolean isValid(){
+        boolean generator = false;
+        boolean connector = false;
+        boolean consumer = false;
+
+        for (INTEnergyNodeManagements member : members){
+            switch(member.getNode().getType()){
+                case GENERATOR -> generator = true;
+                case CONNECTOR -> connector = true;
+                case CONSUMER -> consumer = true;
+            }
+        }
+
+        return generator && connector && consumer;
     }
 }
