@@ -42,7 +42,6 @@ public class EnergyGeneratorBlockEntity extends BlockEntity implements INTEnergy
         if (level == null || level.isClientSide) {
             return;
         }
-
         buildNetwork();
     }
 
@@ -59,9 +58,9 @@ public class EnergyGeneratorBlockEntity extends BlockEntity implements INTEnergy
     }
 
     @Override
-    public void setRemoved(){
-        if (network != null){
-            NTEnergyNetworkManager.removeNetwork(network);
+    public void setRemoved() {
+        if (network != null) {
+            NTEnergyNetworkManager.rebuildNetwork(level, network);
         }
         super.setRemoved();
     }
