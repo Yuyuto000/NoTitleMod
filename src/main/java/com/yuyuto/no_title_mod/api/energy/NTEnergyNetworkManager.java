@@ -92,7 +92,7 @@ public class NTEnergyNetworkManager {
         if(blockEntity == null){
             return;
         }
-        if(blockEntity instanceof EnergyGeneratorBlockEntity generator){
+        if (blockEntity instanceof EnergyGeneratorBlockEntity generator) {
             generator.buildNetwork();
             return;
         }
