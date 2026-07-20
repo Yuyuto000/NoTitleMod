@@ -1,5 +1,6 @@
 package com.yuyuto.no_title_mod.api.energy;
 
+import com.yuyuto.no_title_mod.industry.energy_genertator.EnergyGeneratorBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
@@ -41,15 +42,6 @@ public class NTEnergyNetworkManager {
         }
     }
 
-    public static void removeNetwork(NTEnergyNetwork network){
-
-        if(network == null){
-            return;
-        }
-        network.clearNetwork();
-        networks.remove(network);
-    }
-
     public static void rebuildNetwork(Level level, NTEnergyNetwork oldNetwork) {
 
         if (oldNetwork == null) {
@@ -62,6 +54,7 @@ public class NTEnergyNetworkManager {
             }
         }
         oldNetwork.clearNetwork();
+        networks.remove(oldNetwork);
         for (BlockPos pos : generators) {
             if (level.getBlockEntity(pos) instanceof EnergyGeneratorBlockEntity) {
                 createNetwork(level, pos);

@@ -7,26 +7,10 @@ public class NTEnergyNetwork {
 
     private final List<INTEnergyNodeManagements> members = new ArrayList<>();
 
-    public List<INTEnergyGenerator> getGenerators(){
-        List<INTEnergyGenerator> generators = new ArrayList<>();
-        for(INTEnergyNodeManagements member : members){
-            if(member instanceof INTEnergyGenerator generator){
-                generators.add(generator);
-            }
-        }
-        return generators;
-    }
-
     public void addMember(INTEnergyNodeManagements member){
         if(!members.contains(member)){
             members.add(member);
             member.connection(this);
-        }
-    }
-
-    public void removeMember(INTEnergyNodeManagements member) {
-        if (members.remove(member)) {
-            member.disconnect();
         }
     }
 

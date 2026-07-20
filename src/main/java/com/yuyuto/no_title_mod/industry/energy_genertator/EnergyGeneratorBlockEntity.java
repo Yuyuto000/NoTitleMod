@@ -1,15 +1,48 @@
 package com.yuyuto.no_title_mod.industry.energy_genertator;
 
+import com.lowdragmc.lowdraglib.gui.modular.IUIHolder;
+import com.lowdragmc.lowdraglib.gui.modular.ModularUI;
+import com.lowdragmc.lowdraglib.gui.texture.ResourceTexture;
+import com.lowdragmc.lowdraglib.gui.widget.*;
 import com.yuyuto.no_title_mod.api.energy.*;
+import com.yuyuto.no_title_mod.api.utils.ItemTransferWrapper;
+import com.yuyuto.no_title_mod.gui.NTGuiTextures;
+import com.yuyuto.no_title_mod.industry.material.FuelMaterials;
 import com.yuyuto.no_title_mod.registry.ModBlockEntities;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.items.ItemStackHandler;
+import org.jetbrains.annotations.NotNull;
 
-public class EnergyGeneratorBlockEntity extends BlockEntity implements INTEnergyNodeManagements, INTEnergyGenerator {
+public class EnergyGeneratorBlockEntity extends BlockEntity implements INTEnergyNodeManagements, INTEnergyGenerator, IUIHolder {
 
-    private final NTEnergyNode energyNode = new NTEnergyNode();
-    private NTEnergyNetwork network;
+    private final NTEnergyNode energyNode = new NTEnergyNode(); //電力ネットワークノード
+    private NTEnergyNetwork network; //ノードが所属するネットワーク(ネットワークに接続されているノードで同一)
+    private final ItemStackHandler inventory = new ItemStackHandler(1); //インベントリ
+    private final ItemTransferWrapper itemTransfer = new ItemTransferWrapper(inventory);
+    private int burnTime; //残り燃焼時間
+    private int maxBurnTime; // GUI表示用
+
+    // =======================NBT系は触れたらダメ=========================
+    @Override
+    protected void saveAdditional(@NotNull CompoundTag tag){
+        tag.put("inventory", inventory.serializeNBT());
+        tag.put("EnergyNode", energyNode.saveNBT());
+        super.saveAdditional(tag);
+    }
+
+    @Override
+    public void load(@NotNull CompoundTag tag){
+        super.load(tag);
+        inventory.deserializeNBT(tag.getCompound("inventory"));
+        energyNode.loadNBT(tag.getCompound("EnergyNode"));
+    }
+    //=================================================================
 
     public EnergyGeneratorBlockEntity(BlockPos pos, BlockState state){
         super(ModBlockEntities.ENERGY_GENERATOR.get(), pos, state);
@@ -65,8 +98,44 @@ public class EnergyGeneratorBlockEntity extends BlockEntity implements INTEnergy
         super.setRemoved();
     }
 
+    @SuppressWarnings("unused")
+    public static void tick(Level level, BlockPos pos, BlockState state,@NotNull EnergyGeneratorBlockEntity entity){
+        entity.consumeFuel();
+        if (entity.burnTime > 0){
+            entity.burnTime--;
+        }
+    }
+
+    private void consumeFuel(){
+        if (burnTime > 0){
+            return;
+        }
+        ItemStack stack = inventory.getStackInSlot(0);
+        if (stack.isEmpty()){
+            return;
+        }
+        int burn = FuelMaterials.getBurnTime(stack);
+        if (burn <= 0){
+            return;
+        }
+        stack.shrink(1);
+        burnTime = burn;
+        maxBurnTime = burn;
+    }
+
+    public double getBurnProgress(){
+        if(maxBurnTime == 0){
+            return 0;
+        }
+
+        return (double)burnTime / maxBurnTime;
+    }
+
     @Override
     public void generateEnergy(){
+        if (burnTime <= 0){
+            return;
+        }
         double maxVoltage = 120;
         if(energyNode.getVoltage() < maxVoltage){
             energyNode.setVoltage(energyNode.getVoltage()+1);
@@ -76,8 +145,34 @@ public class EnergyGeneratorBlockEntity extends BlockEntity implements INTEnergy
         energyNode.setPower(NTEnergyManager.calculatePower(energyNode.getVoltage(), energyNode.getCurrent()));
     }
 
+    private WidgetGroup createUIWidgets(){
+        WidgetGroup group = new WidgetGroup(0, 0, 176, 166);
+        group.addWidget(new ImageWidget(0, 0, 176, 166, new ResourceTexture(NTGuiTextures.GENERATOR)));
+        group.addWidget(new SlotWidget(itemTransfer, 0, 80, 30, true, true));
+        group.addWidget(new ProgressWidget(this::getBurnProgress, 150, 20, 10, 60, new ResourceTexture(NTGuiTextures.ENERGY_BAR)));
+        group.addWidget(new LabelWidget(20, 80, () -> "Voltage: " + energyNode.getVoltage() + "V"));
+        group.addWidget(new LabelWidget(20, 100, () -> "Current: " + energyNode.getCurrent() + "A"));
+        group.addWidget(new LabelWidget(20, 120, () -> "Power: " + energyNode.getPower() + "W"));
+        return group;
+    }
+
     @Override
-    public double getGeneratePower() {
-        return 500;
+    public ModularUI createUI(Player entityPlayer) {
+        return new ModularUI(createUIWidgets(), this, entityPlayer);
+    }
+
+    @Override
+    public boolean isInvalid() {
+        return false;
+    }
+
+    @Override
+    public boolean isRemote() {
+        return false;
+    }
+
+    @Override
+    public void markAsDirty() {
+
     }
 }

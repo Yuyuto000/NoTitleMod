@@ -1,5 +1,8 @@
 package com.yuyuto.no_title_mod.api.energy;
 
+import net.minecraft.nbt.CompoundTag;
+import org.jetbrains.annotations.NotNull;
+
 import java.util.UUID;
 
 public class NTEnergyNode {
@@ -66,5 +69,28 @@ public class NTEnergyNode {
 
     public void setMaxPower(double maxPower) {
         this.maxPower = maxPower;
+    }
+
+    public CompoundTag saveNBT(){
+        CompoundTag tag = new CompoundTag();
+
+        tag.putDouble("Voltage", voltage);
+        tag.putDouble("Current", current);
+        tag.putDouble("Resistance", resistance);
+        tag.putDouble("Power", power);
+        if (type != null){
+            tag.putString("Type", type.name());
+        }
+        return tag;
+    }
+
+    public void loadNBT(@NotNull CompoundTag tag){
+        voltage = tag.getDouble("Voltage");
+        current = tag.getDouble("current");
+        resistance = tag.getDouble("resistance");
+        power = tag.getDouble("Power");
+        if (tag.contains("Type")){
+            type = NTEnergyNodeType.valueOf(tag.getString("Type"));
+        }
     }
 }

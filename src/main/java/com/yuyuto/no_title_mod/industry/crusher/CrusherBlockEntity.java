@@ -6,6 +6,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
@@ -23,6 +24,7 @@ public class CrusherBlockEntity extends BlockEntity implements INTEnergyNodeMana
     private final ItemStackHandler inventory = new ItemStackHandler(2);
     private final LazyOptional<IItemHandler> itemHandler = LazyOptional.of(() -> inventory);
     private final NTEnergyNode energyNode = new NTEnergyNode();
+    private NTEnergyNetwork network;
 
     // ============================弄らない==============================
     public CrusherBlockEntity(BlockPos pos, BlockState state) {
@@ -32,10 +34,12 @@ public class CrusherBlockEntity extends BlockEntity implements INTEnergyNodeMana
 
     @Override
     public void connection(NTEnergyNetwork network) {
+        this.network = network;
     }
 
     @Override
     public void disconnect() {
+        this.network = null;
     }
 
     @Override
@@ -71,17 +75,19 @@ public class CrusherBlockEntity extends BlockEntity implements INTEnergyNodeMana
 
     // =======================NBT系は触れたらダメ=========================
     @Override
-    protected void saveAdditional(CompoundTag tag){
+    protected void saveAdditional(@NotNull CompoundTag tag){
         tag.put("inventory", inventory.serializeNBT());
+        tag.put("EnergyNode", energyNode.saveNBT());
         super.saveAdditional(tag);
     }
 
     @Override
     public void load(@NotNull CompoundTag tag){
         super.load(tag);
+        energyNode.loadNBT(tag.getCompound("EnergyNode"));
         inventory.deserializeNBT(tag.getCompound("inventory"));
     }
-    //===================================================================
+    //=================================================================
 
     @Override
     public <T> @NotNull LazyOptional<T> getCapability(@NotNull Capability<T> capability){
@@ -99,7 +105,7 @@ public class CrusherBlockEntity extends BlockEntity implements INTEnergyNodeMana
 
     private void pullItem(@NotNull BlockPos pos){
 
-        BlockEntity target = Objects.requireNonNull(level).getBlockEntity(pos.relative(Direction.UP));
+        BlockEntity target = Objects.requireNonNull(level).getBlockEntity(pos.relative(Direction.EAST));
 
         if(target == null) return;
         target.getCapability(ForgeCapabilities.ITEM_HANDLER).ifPresent(handler -> {
@@ -112,7 +118,7 @@ public class CrusherBlockEntity extends BlockEntity implements INTEnergyNodeMana
     }
 
     private void pushItem(@NotNull BlockPos pos){
-        BlockEntity target = Objects.requireNonNull(level).getBlockEntity(pos.relative(Direction.DOWN));
+        BlockEntity target = Objects.requireNonNull(level).getBlockEntity(pos.relative(Direction.WEST));
 
         if (target == null) return;
         target.getCapability(ForgeCapabilities.ITEM_HANDLER).ifPresent(handler -> {
@@ -122,7 +128,8 @@ public class CrusherBlockEntity extends BlockEntity implements INTEnergyNodeMana
         });
     }
 
-    public static void tick(BlockPos pos, @NotNull CrusherBlockEntity entity) {
+    @SuppressWarnings("unused")
+    public static void tick(Level level, BlockPos pos, BlockState state, @NotNull CrusherBlockEntity entity) {
 
         entity.pullItem(pos);
         entity.pushItem(pos);
