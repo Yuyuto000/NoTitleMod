@@ -69,6 +69,9 @@ public class EnergyCableBlockEntity extends BlockEntity implements INTEnergyNode
     }
 
     private NTEnergyNode getNeighbourNode(Direction direction){
+        if (level == null){
+            return null;
+        }
         BlockEntity blockEntity = level.getBlockEntity(worldPosition.relative(direction));
         if (blockEntity instanceof INTEnergyNodeManagements provider){
             return provider.getNode();
