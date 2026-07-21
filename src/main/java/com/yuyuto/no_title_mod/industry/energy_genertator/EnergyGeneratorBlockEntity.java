@@ -49,6 +49,7 @@ public class EnergyGeneratorBlockEntity extends BlockEntity implements INTEnergy
         energyNode.setType(NTEnergyNodeType.GENERATOR);
     }
 
+    // NTEnergyNetwork Systems
     @Override
     public void connection(NTEnergyNetwork network) {
         this.network = network;
@@ -98,6 +99,7 @@ public class EnergyGeneratorBlockEntity extends BlockEntity implements INTEnergy
         super.setRemoved();
     }
 
+    // Generator process
     @SuppressWarnings("unused")
     public static void tick(Level level, BlockPos pos, BlockState state,@NotNull EnergyGeneratorBlockEntity entity){
         entity.consumeFuel();
@@ -145,7 +147,8 @@ public class EnergyGeneratorBlockEntity extends BlockEntity implements INTEnergy
         energyNode.setPower(NTEnergyManager.calculatePower(energyNode.getVoltage(), energyNode.getCurrent()));
     }
 
-    private WidgetGroup createUIWidgets(){
+    //GUI
+    private @NotNull WidgetGroup createUIWidgets(){
         WidgetGroup group = new WidgetGroup(0, 0, 176, 166);
         group.addWidget(new ImageWidget(0, 0, 176, 166, new ResourceTexture(NTGuiTextures.GENERATOR)));
         group.addWidget(new SlotWidget(itemTransfer, 0, 80, 30, true, true));

@@ -3,7 +3,6 @@ package com.yuyuto.no_title_mod.industry.energy_cable;
 import com.yuyuto.no_title_mod.api.energy.*;
 import com.yuyuto.no_title_mod.registry.ModBlockEntities;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -47,8 +46,6 @@ public class EnergyCableBlockEntity extends BlockEntity implements INTEnergyNode
 
     @Override
     public void updateEnergyNode(){
-        double resistance = 0.25218;
-        energyNode.setPower(Math.max(energyNode.getPower() - resistance, 0));
     }
 
     @Override
@@ -68,61 +65,8 @@ public class EnergyCableBlockEntity extends BlockEntity implements INTEnergyNode
         super.setRemoved();
     }
 
-    private NTEnergyNode getNeighbourNode(Direction direction){
-        if (level == null){
-            return null;
-        }
-        BlockEntity blockEntity = level.getBlockEntity(worldPosition.relative(direction));
-        if (blockEntity instanceof INTEnergyNodeManagements provider){
-            return provider.getNode();
-        }
-        return null;
-    }
-
-    private void receivePower(){
-        double inputPower = 0;
-        for(Direction direction : Direction.values()){
-            NTEnergyNode node=getNeighbourNode(direction);
-            if(node==null){
-                continue;
-            }
-            if(node.getType()==NTEnergyNodeType.GENERATOR || node.getType()==NTEnergyNodeType.CONNECTOR){
-                inputPower += node.getPower();
-            }
-        }
-        energyNode.setPower(Math.max(inputPower - energyNode.getResistance(), 0));
-    }
-
-    private void sendPower(){
-        int outputCount = 0;
-        for(Direction direction : Direction.values()){
-            NTEnergyNode node = getNeighbourNode(direction);
-            if(node == null){
-                continue;
-            }
-            if(node.getType() == NTEnergyNodeType.CONSUMER || node.getType() == NTEnergyNodeType.CONNECTOR){
-                outputCount++;
-            }
-        }
-        if(outputCount == 0){
-            return;
-        }
-        double sendPower = energyNode.getPower() / outputCount;
-
-        for(Direction direction : Direction.values()){
-            NTEnergyNode node = getNeighbourNode(direction);
-            if(node == null){
-                continue;
-            }
-            if(node.getType() == NTEnergyNodeType.CONSUMER || node.getType() == NTEnergyNodeType.CONNECTOR){
-                node.setPower(sendPower);
-            }
-        }
-    }
-
     @Override
-    public void transferEnergy() {
-        receivePower();
-        sendPower();
+    public double getResistance() {
+        return energyNode.getResistance();
     }
 }
