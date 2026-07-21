@@ -35,18 +35,18 @@ public class EnergyGeneratorBlockEntity extends BlockEntity implements INTEnergy
     // =======================NBT系は触れたらダメ=========================
     @Override
     protected void saveAdditional(@NotNull CompoundTag tag){
-        NoTitleMod.LOGGER.info("SAVE START {}", this.getBlockPos());
-        // tag.put("inventory", inventory.serializeNBT());
-        // tag.put("EnergyNode", energyNode.saveNBT());
+        NoTitleMod.LOGGER.info("[EnergyGenerator] SAVE START {}", this.getBlockPos());
+        tag.put("inventory", inventory.serializeNBT());
+        tag.put("EnergyNode", energyNode.saveNBT());
         super.saveAdditional(tag);
-        NoTitleMod.LOGGER.info("SAVE END {}", this.getBlockPos());
+        NoTitleMod.LOGGER.info("[EnergyGenerator] SAVE END {}", this.getBlockPos());
     }
 
     @Override
     public void load(@NotNull CompoundTag tag){
         super.load(tag);
-        // inventory.deserializeNBT(tag.getCompound("inventory"));
-        // energyNode.loadNBT(tag.getCompound("EnergyNode"));
+        inventory.deserializeNBT(tag.getCompound("inventory"));
+        energyNode.loadNBT(tag.getCompound("EnergyNode"));
     }
     //=================================================================
 
@@ -58,39 +58,46 @@ public class EnergyGeneratorBlockEntity extends BlockEntity implements INTEnergy
     // NTEnergyNetwork Systems
     @Override
     public void connection(NTEnergyNetwork network) {
+        NoTitleMod.LOGGER.info("[EnergyGenerator] EnergyNetwork connected");
         this.network = network;
     }
 
     @Override
     public void disconnect() {
+        NoTitleMod.LOGGER.info("[EnergyGenerator] EnergyNetwork disconnected");
         this.network = null;
     }
 
     @Override
     public NTEnergyNode getNode() {
+        NoTitleMod.LOGGER.info("[EnergyGenerator] MyEnergyNode send");
         return energyNode;
     }
 
     @Override
     public BlockPos getNodePosition() {
+        NoTitleMod.LOGGER.info("[EnergyGenerator] MyEnergyNodePosition send");
         return worldPosition;
     }
 
     @Override
     public void onLoad() {
+        NoTitleMod.LOGGER.info("[EnergyGenerator] loading");
         super.onLoad();
         if (level == null || level.isClientSide) {
-            return;
+           return;
         }
         buildNetwork();
     }
 
     @Override
     public void updateEnergyNode(){
+        NoTitleMod.LOGGER.info("[EnergyGenerator] update EnergyNode");
         energyNode.setPower(NTEnergyManager.calculatePower(energyNode.getVoltage(), energyNode.getCurrent()));
     }
 
     public void buildNetwork(){
+        NoTitleMod.LOGGER.info("[EnergyGenerator] BuildingNetwork");
         if (level == null){
             return;
         }
@@ -99,6 +106,7 @@ public class EnergyGeneratorBlockEntity extends BlockEntity implements INTEnergy
 
     @Override
     public void setRemoved() {
+        NoTitleMod.LOGGER.info("[EnergyGenerator] MyEnergyNode removed");
         if (network != null) {
             NTEnergyNetworkManager.rebuildNetwork(level, network);
         }
@@ -109,13 +117,13 @@ public class EnergyGeneratorBlockEntity extends BlockEntity implements INTEnergy
     @SuppressWarnings("unused")
     public static void tick(Level level, BlockPos pos, BlockState state,@NotNull EnergyGeneratorBlockEntity entity){
         entity.consumeFuel();
-        NoTitleMod.LOGGER.info("TICK {}", pos);
         if (entity.burnTime > 0){
             entity.burnTime--;
         }
     }
 
     private void consumeFuel(){
+        NoTitleMod.LOGGER.info("[EnergyGenerator] ConsumingFuel");
         if (burnTime > 0){
             return;
         }
@@ -142,6 +150,7 @@ public class EnergyGeneratorBlockEntity extends BlockEntity implements INTEnergy
 
     @Override
     public void generateEnergy(){
+        NoTitleMod.LOGGER.info("[EnergyGenerator] Generating Energy");
         if (burnTime <= 0){
             return;
         }
@@ -172,6 +181,7 @@ public class EnergyGeneratorBlockEntity extends BlockEntity implements INTEnergy
 
     @Override
     public ModularUI createUI(Player entityPlayer) {
+        NoTitleMod.LOGGER.info("[EnergyGenerator] Creating UI");
         return new ModularUI(createUIWidgets(), this, entityPlayer);
     }
 
