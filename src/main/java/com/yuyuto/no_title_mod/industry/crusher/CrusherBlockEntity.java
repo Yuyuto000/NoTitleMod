@@ -1,5 +1,6 @@
 package com.yuyuto.no_title_mod.industry.crusher;
 
+import com.yuyuto.no_title_mod.NoTitleMod;
 import com.yuyuto.no_title_mod.api.energy.*;
 import com.yuyuto.no_title_mod.registry.ModBlockEntities;
 import net.minecraft.core.BlockPos;
@@ -76,16 +77,18 @@ public class CrusherBlockEntity extends BlockEntity implements INTEnergyNodeMana
     // =======================NBT系は触れたらダメ=========================
     @Override
     protected void saveAdditional(@NotNull CompoundTag tag){
-        tag.put("inventory", inventory.serializeNBT());
-        tag.put("EnergyNode", energyNode.saveNBT());
+        NoTitleMod.LOGGER.info("SAVE START {}", this.getBlockPos());
+        // tag.put("inventory", inventory.serializeNBT());
+        // tag.put("EnergyNode", energyNode.saveNBT());
         super.saveAdditional(tag);
+        NoTitleMod.LOGGER.info("SAVE END {}", this.getBlockPos());
     }
 
     @Override
     public void load(@NotNull CompoundTag tag){
         super.load(tag);
-        energyNode.loadNBT(tag.getCompound("EnergyNode"));
-        inventory.deserializeNBT(tag.getCompound("inventory"));
+        // energyNode.loadNBT(tag.getCompound("EnergyNode"));
+        // inventory.deserializeNBT(tag.getCompound("inventory"));
     }
     //=================================================================
 
@@ -138,6 +141,7 @@ public class CrusherBlockEntity extends BlockEntity implements INTEnergyNodeMana
             entity.process();
             entity.progress = 0;
         }
+        NoTitleMod.LOGGER.info("TICK {}", pos);
     }
 
     private void process() {

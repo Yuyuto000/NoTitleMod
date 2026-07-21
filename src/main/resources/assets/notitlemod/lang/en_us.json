@@ -1,5 +1,6 @@
 {
   "creativetab.no_title_industry_tab": "No Titles industry",
+  "text.notitlemod.energy_generator" : "Energy Generator Console",
   "block.notitlemod.aluminum_ore": "aluminum ore",
   "block.notitlemod.chromium_ore": "chromium ore",
   "block.notitlemod.cobalt_ore": "cobalt ore",
@@ -14,6 +15,8 @@
   "block.notitlemod.tungsten_ore": "tungsten ore",
   "block.notitlemod.zinc_ore": "zinc ore",
   "block.notitlemod.crusher" : "Crusher",
+  "block.notitlemod.energy_generator" : "Energy Generator",
+  "block.notitlemod.energy_cable" : "Electric Cable",
   "item.notitlemod.aluminum_ingot": "Aluminum ingot",
   "item.notitlemod.aluminum_dust" : "Aluminum Dust",
   "item.notitlemod.chromium_ingot": "Chromium ingot",

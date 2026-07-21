@@ -46,6 +46,11 @@ public class CrusherBlock extends BaseEntityBlock {
     }
 
     @Override
+    public @NotNull RenderShape getRenderShape(@NotNull BlockState state) {
+        return RenderShape.MODEL;
+    }
+
+    @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(@NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> type){
         return createTickerHelper(
                 type,

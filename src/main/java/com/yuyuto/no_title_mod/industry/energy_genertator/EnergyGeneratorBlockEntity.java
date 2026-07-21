@@ -4,6 +4,9 @@ import com.lowdragmc.lowdraglib.gui.modular.IUIHolder;
 import com.lowdragmc.lowdraglib.gui.modular.ModularUI;
 import com.lowdragmc.lowdraglib.gui.texture.ResourceTexture;
 import com.lowdragmc.lowdraglib.gui.widget.*;
+import com.lowdragmc.lowdraglib.gui.widget.custom.PlayerInventoryWidget;
+import com.lowdragmc.lowdraglib.utils.Position;
+import com.yuyuto.no_title_mod.NoTitleMod;
 import com.yuyuto.no_title_mod.api.energy.*;
 import com.yuyuto.no_title_mod.api.utils.ItemTransferWrapper;
 import com.yuyuto.no_title_mod.gui.NTGuiTextures;
@@ -11,6 +14,7 @@ import com.yuyuto.no_title_mod.industry.material.FuelMaterials;
 import com.yuyuto.no_title_mod.registry.ModBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -31,16 +35,18 @@ public class EnergyGeneratorBlockEntity extends BlockEntity implements INTEnergy
     // =======================NBT系は触れたらダメ=========================
     @Override
     protected void saveAdditional(@NotNull CompoundTag tag){
-        tag.put("inventory", inventory.serializeNBT());
-        tag.put("EnergyNode", energyNode.saveNBT());
+        NoTitleMod.LOGGER.info("SAVE START {}", this.getBlockPos());
+        // tag.put("inventory", inventory.serializeNBT());
+        // tag.put("EnergyNode", energyNode.saveNBT());
         super.saveAdditional(tag);
+        NoTitleMod.LOGGER.info("SAVE END {}", this.getBlockPos());
     }
 
     @Override
     public void load(@NotNull CompoundTag tag){
         super.load(tag);
-        inventory.deserializeNBT(tag.getCompound("inventory"));
-        energyNode.loadNBT(tag.getCompound("EnergyNode"));
+        // inventory.deserializeNBT(tag.getCompound("inventory"));
+        // energyNode.loadNBT(tag.getCompound("EnergyNode"));
     }
     //=================================================================
 
@@ -103,6 +109,7 @@ public class EnergyGeneratorBlockEntity extends BlockEntity implements INTEnergy
     @SuppressWarnings("unused")
     public static void tick(Level level, BlockPos pos, BlockState state,@NotNull EnergyGeneratorBlockEntity entity){
         entity.consumeFuel();
+        NoTitleMod.LOGGER.info("TICK {}", pos);
         if (entity.burnTime > 0){
             entity.burnTime--;
         }
@@ -151,11 +158,15 @@ public class EnergyGeneratorBlockEntity extends BlockEntity implements INTEnergy
     private @NotNull WidgetGroup createUIWidgets(){
         WidgetGroup group = new WidgetGroup(0, 0, 176, 166);
         group.addWidget(new ImageWidget(0, 0, 176, 166, new ResourceTexture(NTGuiTextures.GENERATOR)));
+        group.addWidget(new LabelWidget(8, 6, Component.translatable("text.notitlemod.energy_generator")));
         group.addWidget(new SlotWidget(itemTransfer, 0, 80, 30, true, true));
         group.addWidget(new ProgressWidget(this::getBurnProgress, 150, 20, 10, 60, new ResourceTexture(NTGuiTextures.ENERGY_BAR)));
-        group.addWidget(new LabelWidget(20, 80, () -> "Voltage: " + energyNode.getVoltage() + "V"));
-        group.addWidget(new LabelWidget(20, 100, () -> "Current: " + energyNode.getCurrent() + "A"));
-        group.addWidget(new LabelWidget(20, 120, () -> "Power: " + energyNode.getPower() + "W"));
+        group.addWidget(new LabelWidget(8, 23, () -> "Voltage: " + energyNode.getVoltage() + "V"));
+        group.addWidget(new LabelWidget(8, 43, () -> "Current: " + energyNode.getCurrent() + "A"));
+        group.addWidget(new LabelWidget(8, 63, () -> "Power: " + energyNode.getPower() + "W"));
+        PlayerInventoryWidget inventoryWidget = new PlayerInventoryWidget();
+        inventoryWidget.setSelfPosition(new Position(2, 83));
+        group.addWidget(inventoryWidget);
         return group;
     }
 
