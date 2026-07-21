@@ -25,23 +25,8 @@ public class EnergyCableBlockEntity extends BlockEntity implements INTEnergyNode
     }
 
     @Override
-    public void connection(NTEnergyNetwork network){
-        this.network = network;
-    }
-
-    @Override
-    public void disconnect(){
-        this.network = null;
-    }
-
-    @Override
     public NTEnergyNode getNode(){
         return energyNode;
-    }
-
-    @Override
-    public BlockPos getNodePosition() {
-        return worldPosition;
     }
 
     @Override

@@ -55,29 +55,10 @@ public class EnergyGeneratorBlockEntity extends BlockEntity implements INTEnergy
         energyNode.setType(NTEnergyNodeType.GENERATOR);
     }
 
-    // NTEnergyNetwork Systems
-    @Override
-    public void connection(NTEnergyNetwork network) {
-        NoTitleMod.LOGGER.info("[EnergyGenerator] EnergyNetwork connected");
-        this.network = network;
-    }
-
-    @Override
-    public void disconnect() {
-        NoTitleMod.LOGGER.info("[EnergyGenerator] EnergyNetwork disconnected");
-        this.network = null;
-    }
-
     @Override
     public NTEnergyNode getNode() {
         NoTitleMod.LOGGER.info("[EnergyGenerator] MyEnergyNode send");
         return energyNode;
-    }
-
-    @Override
-    public BlockPos getNodePosition() {
-        NoTitleMod.LOGGER.info("[EnergyGenerator] MyEnergyNodePosition send");
-        return worldPosition;
     }
 
     @Override

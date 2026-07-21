@@ -34,27 +34,9 @@ public class CrusherBlockEntity extends BlockEntity implements INTEnergyNodeMana
     }
 
     @Override
-    public void connection(NTEnergyNetwork network) {
-        this.network = network;
-        NoTitleMod.LOGGER.info("Energy Network connected: {}", network);
-    }
-
-    @Override
-    public void disconnect() {
-        this.network = null;
-        NoTitleMod.LOGGER.info("Energy Network disconnected");
-    }
-
-    @Override
     public NTEnergyNode getNode(){
         NoTitleMod.LOGGER.info("EnergyNode send");
         return energyNode;
-    }
-
-    @Override
-    public BlockPos getNodePosition() {
-        NoTitleMod.LOGGER.info("MyEnergyNode position send");
-        return worldPosition;
     }
 
     @Override
