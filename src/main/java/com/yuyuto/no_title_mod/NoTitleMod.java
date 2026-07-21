@@ -2,6 +2,7 @@ package com.yuyuto.no_title_mod;
 
 import com.mojang.logging.LogUtils;
 import com.yuyuto.no_title_mod.event.ModCraftingEvent;
+import com.yuyuto.no_title_mod.event.ModServerTickEvent;
 import com.yuyuto.no_title_mod.registry.*;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -30,6 +31,7 @@ public class NoTitleMod {
         ModRecipeSerializers.register(modEventBus);
         NoTitleMod.LOGGER.info("[YUYUTO_TECHNOLOGIES][INFO] RecipeSerializer Loaded successful");
         MinecraftForge.EVENT_BUS.register(ModCraftingEvent.class);
+        MinecraftForge.EVENT_BUS.register(ModServerTickEvent.class);
         NoTitleMod.LOGGER.info("[YUYUTO_TECHNOLOGIES][INFO] NoTitleMod(NTMod) Loaded successful");
     }
 

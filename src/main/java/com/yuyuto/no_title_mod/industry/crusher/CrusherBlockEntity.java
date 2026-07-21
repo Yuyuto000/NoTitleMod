@@ -35,7 +35,6 @@ public class CrusherBlockEntity extends BlockEntity implements INTEnergyNodeMana
 
     @Override
     public NTEnergyNode getNode(){
-        NoTitleMod.LOGGER.info("EnergyNode send");
         return energyNode;
     }
 
@@ -50,7 +49,6 @@ public class CrusherBlockEntity extends BlockEntity implements INTEnergyNodeMana
         if (level == null || level.isClientSide) {
             return;
         }
-        NoTitleMod.LOGGER.info("BlockEntity loaded");
         NTEnergyNetworkManager.updateAround(level, worldPosition);
     }
 
@@ -60,7 +58,6 @@ public class CrusherBlockEntity extends BlockEntity implements INTEnergyNodeMana
             NTEnergyNetworkManager.rebuildNetwork(level, network);
         }
         super.setRemoved();
-        NoTitleMod.LOGGER.info("BlockEntity destroyed");
     }
 
     // =======================NBT系は触れたらダメ=========================
@@ -89,19 +86,16 @@ public class CrusherBlockEntity extends BlockEntity implements INTEnergyNodeMana
         if (capability == ForgeCapabilities.ITEM_HANDLER){
             return itemHandler.cast();
         }
-        NoTitleMod.LOGGER.info("getCapability {}", capability);
         return super.getCapability(capability);
     }
 
     @Override
     public void invalidateCaps() {
-        NoTitleMod.LOGGER.info("invalidateCaps summoned");
         super.invalidateCaps();
         itemHandler.invalidate();
     }
 
     private void pullItem(@NotNull BlockPos pos){
-        NoTitleMod.LOGGER.info("pullItem method executed");
 
         BlockEntity target = Objects.requireNonNull(level).getBlockEntity(pos.relative(Direction.EAST));
 
@@ -113,11 +107,9 @@ public class CrusherBlockEntity extends BlockEntity implements INTEnergyNodeMana
                 inventory.insertItem(0, item, false);
             }
         });
-        NoTitleMod.LOGGER.info("pullItem method finish");
     }
 
     private void pushItem(@NotNull BlockPos pos){
-        NoTitleMod.LOGGER.info("pushItem method executed");
         BlockEntity target = Objects.requireNonNull(level).getBlockEntity(pos.relative(Direction.WEST));
 
         if (target == null) return;
@@ -126,7 +118,6 @@ public class CrusherBlockEntity extends BlockEntity implements INTEnergyNodeMana
             ItemStack remain = handler.insertItem(0, output, false);
             inventory.setStackInSlot(1, remain);
         });
-        NoTitleMod.LOGGER.info("pushItem method finish");
     }
 
     @SuppressWarnings("unused")

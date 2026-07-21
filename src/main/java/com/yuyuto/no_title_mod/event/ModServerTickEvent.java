@@ -1,5 +1,6 @@
 package com.yuyuto.no_title_mod.event;
 
+import com.yuyuto.no_title_mod.NoTitleMod;
 import com.yuyuto.no_title_mod.api.energy.NTEnergyNetworkManager;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -16,7 +17,7 @@ public class ModServerTickEvent {
             MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
             for(ServerLevel level : server.getAllLevels()){
                 NTEnergyNetworkManager.tick(level);
-
+                NoTitleMod.LOGGER.info("TICK STARTED");
             }
         }
     }

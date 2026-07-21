@@ -17,7 +17,7 @@ public class NTEnergyNetworkManager {
 
     private static final List<NTEnergyNetwork> networks = new ArrayList<>();
 
-    public static @NotNull NTEnergyNetwork createNetwork(Level level, BlockPos startPos){
+    public static @NotNull NTEnergyNetwork createNetwork(@NotNull Level level, BlockPos startPos){
 
         NTEnergyNodePos target = new NTEnergyNodePos(level.dimension(), startPos);
         for(NTEnergyNetwork network : networks){

@@ -1,7 +1,9 @@
 package com.yuyuto.no_title_mod.api.energy;
 
+import com.yuyuto.no_title_mod.NoTitleMod;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,13 +34,14 @@ public class NTEnergyNetwork {
     }
 
     public void tick(ServerLevel level){
+        NoTitleMod.LOGGER.info("NETWORK TICK");
 
         generate(level);
         transfer(level);
         updateNodes(level);
     }
 
-    private BlockEntity getEntity(ServerLevel level, NTEnergyNodePos node){
+    private @Nullable BlockEntity getEntity(ServerLevel level, NTEnergyNodePos node){
 
         if(!level.dimension().equals(node.dimension())){
             return null;
@@ -47,12 +50,13 @@ public class NTEnergyNetwork {
     }
 
     private void generate(ServerLevel level){
-
+        NoTitleMod.LOGGER.info("Network generate start");
         totalPower = 0;
         for(NTEnergyNodePos node : members){
             BlockEntity entity = getEntity(level,node);
             if(entity instanceof INTEnergyGenerator generator){
                 generator.generateEnergy();
+                NoTitleMod.LOGGER.info("GENERATOR FOUND {}", node.pos());
                 totalPower += generator.getNode().getPower();
             }
         }

@@ -131,7 +131,7 @@ public class EnergyGeneratorBlockEntity extends BlockEntity implements INTEnergy
 
     @Override
     public void generateEnergy(){
-        NoTitleMod.LOGGER.info("[EnergyGenerator] Generating Energy");
+        NoTitleMod.LOGGER.info("burnTime={}", burnTime);
         if (burnTime <= 0){
             return;
         }
@@ -142,6 +142,7 @@ public class EnergyGeneratorBlockEntity extends BlockEntity implements INTEnergy
         energyNode.setResistance(10);
         energyNode.setCurrent(NTEnergyManager.calculateCurrent(energyNode.getVoltage(), energyNode.getResistance()));
         energyNode.setPower(NTEnergyManager.calculatePower(energyNode.getVoltage(), energyNode.getCurrent()));
+        NoTitleMod.LOGGER.info("Generator Power {}", energyNode.getPower());
     }
 
     //GUI
