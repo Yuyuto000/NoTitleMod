@@ -4,17 +4,32 @@ import com.yuyuto.no_title_mod.api.energy.INTEnergyNodeManagements;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public class EnergyCableBlock extends Block {
+public class EnergyCableBlock extends BaseEntityBlock {
+    private static final VoxelShape CENTER_VOXEL = Block.box(6,6,6,10,10,10);
+    private static final VoxelShape NORTH_VOXEL = Block.box(6,6,0,10,10,6);
+    private static final VoxelShape SOUTH_VOXEL = Block.box(6,6,10,10,10,16);
+    private static final VoxelShape EAST_VOXEL = Block.box(10,6,6,16,10,10);
+    private static final VoxelShape WEST_VOXEL = Block.box(0,6,6,6,10,10);
+    private static final VoxelShape UP_VOXEL = Block.box(6,10,6,10,16,10);
+    private static final VoxelShape DOWN_VOXEL = Block.box(6,0,6,10,6,10);
+
     public EnergyCableBlock(Properties properties) {
         super(properties);
         registerDefaultState(
@@ -70,5 +85,43 @@ public class EnergyCableBlock extends Block {
             case UP    -> state.setValue(UP,    canConnect(level, neighborPos));
             case DOWN  -> state.setValue(DOWN,  canConnect(level, neighborPos));
         };
+    }
+
+    @Override
+    public @Nullable BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
+        return new EnergyCableBlockEntity(pos, state);
+    }
+
+    @Override
+    public @NotNull RenderShape getRenderShape(@NotNull BlockState state) {
+        return RenderShape.MODEL;
+    }
+
+    @SuppressWarnings("deprecation")
+    @Override
+    public @NotNull VoxelShape getShape(@NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context) {
+
+        VoxelShape shape = CENTER_VOXEL;
+
+        if (state.getValue(NORTH)) {
+            shape = Shapes.or(shape, NORTH_VOXEL);
+        }
+        if (state.getValue(SOUTH)) {
+            shape = Shapes.or(shape, SOUTH_VOXEL);
+        }
+        if (state.getValue(EAST)) {
+            shape = Shapes.or(shape, EAST_VOXEL);
+        }
+        if (state.getValue(WEST)) {
+            shape = Shapes.or(shape, WEST_VOXEL);
+        }
+        if (state.getValue(UP)) {
+            shape = Shapes.or(shape, UP_VOXEL);
+        }
+        if (state.getValue(DOWN)) {
+            shape = Shapes.or(shape, DOWN_VOXEL);
+        }
+
+        return shape;
     }
 }
