@@ -3,6 +3,7 @@ package com.yuyuto.no_title_mod.api.energy;
 import com.yuyuto.no_title_mod.NoTitleMod;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -41,7 +42,7 @@ public class NTEnergyNetwork {
         updateNodes(level);
     }
 
-    private @Nullable BlockEntity getEntity(ServerLevel level, NTEnergyNodePos node){
+    private @Nullable BlockEntity getEntity(@NotNull ServerLevel level, @NotNull NTEnergyNodePos node){
 
         if(!level.dimension().equals(node.dimension())){
             return null;
