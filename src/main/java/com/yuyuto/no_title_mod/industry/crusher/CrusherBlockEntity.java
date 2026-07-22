@@ -122,7 +122,9 @@ public class CrusherBlockEntity extends BlockEntity implements INTEnergyNodeMana
             entity.progress = 0;
         }
         if (entity.progress % 5 == 0){
-            ((ServerLevel)level).sendParticles(ParticleTypes.POOF, pos.getX()+0.5, pos.getY()+1, pos.getZ()+0.5, 2, 0.2, 0.1, 0.2, 0.01);
+            if(level instanceof ServerLevel serverLevel){
+             serverLevel.sendParticles(ParticleTypes.POOF, pos.getX()+0.5, pos.getY()+1, pos.getZ()+0.5, 2, 0.2, 0.1, 0.2, 0.01);
+            }
         }
         if(entity.progress % 20 == 0){
             level.playSound(null, pos, SoundEvents.GRINDSTONE_USE, SoundSource.BLOCKS, 0.5F, 1.0F);
