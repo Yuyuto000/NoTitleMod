@@ -1,6 +1,5 @@
 package com.yuyuto.no_title_mod.industry.crusher;
 
-import com.yuyuto.no_title_mod.NoTitleMod;
 import com.yuyuto.no_title_mod.api.energy.*;
 import com.yuyuto.no_title_mod.registry.ModBlockEntities;
 import net.minecraft.core.BlockPos;
@@ -29,6 +28,7 @@ public class CrusherBlockEntity extends BlockEntity implements INTEnergyNodeMana
     private final ItemStackHandler inventory = new ItemStackHandler(2);
     private final LazyOptional<IItemHandler> itemHandler = LazyOptional.of(() -> inventory);
     private final NTEnergyNode energyNode = new NTEnergyNode();
+    private final double REQUIRED_POWER = 1000.0;
 
     // ============================弄らない==============================
     public CrusherBlockEntity(BlockPos pos, BlockState state) {
@@ -43,7 +43,6 @@ public class CrusherBlockEntity extends BlockEntity implements INTEnergyNodeMana
 
     @Override
     public void updateEnergyNode() {
-        NoTitleMod.LOGGER.info("MyEnergyNode update");
     }
 
     @Override
@@ -113,7 +112,10 @@ public class CrusherBlockEntity extends BlockEntity implements INTEnergyNodeMana
 
     @SuppressWarnings("unused")
     public static void tick(Level level, BlockPos pos, BlockState state, @NotNull CrusherBlockEntity entity) {
-
+        if(!NTEnergyManager.canOperate(entity.energyNode.getPower(), entity.REQUIRED_POWER)){
+            entity.progress = 0;
+            return;
+        }
         entity.pullItem(pos);
         entity.pushItem(pos);
         entity.progress++;

@@ -12,8 +12,6 @@ import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
-import static com.yuyuto.no_title_mod.NoTitleMod.LOGGER;
-
 public class CrusherHammerRecipe implements CraftingRecipe {
 
     private final ResourceLocation id;
@@ -24,7 +22,6 @@ public class CrusherHammerRecipe implements CraftingRecipe {
         this.id = id;
         this.input = input;
         this.result = result;
-        LOGGER.info("CrusherHammer initialized");
     }
 
     public Ingredient getInput() {
@@ -56,7 +53,6 @@ public class CrusherHammerRecipe implements CraftingRecipe {
             // それ以外のアイテムがあれば失敗
             return false;
         }
-        LOGGER.info("matches");
         return inputCount == 1 && hammerCount == 1;
     }
 

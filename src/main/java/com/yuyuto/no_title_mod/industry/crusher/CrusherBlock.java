@@ -26,7 +26,6 @@ public class CrusherBlock extends BaseEntityBlock {
                 this.stateDefinition.any()
                         .setValue(FACING, Direction.NORTH)
         );
-        NoTitleMod.LOGGER.info("CrusherBlock initialized");
     }
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
 

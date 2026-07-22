@@ -113,6 +113,7 @@ public class DieselBlockEntity extends BlockEntity implements INTMechanicalPower
         if (++entity.soundTick >= 20) {
             entity.soundTick = 0;
             level.playSound(null, pos, SoundEvents.FURNACE_FIRE_CRACKLE, SoundSource.BLOCKS, 0.5F, pitch);
+            level.playSound(null, pos, SoundEvents.LAVA_AMBIENT, SoundSource.BLOCKS, 0.5F, pitch);
         }
         if (++entity.effectTick >= 5) {
             entity.effectTick = 0;

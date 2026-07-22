@@ -1,6 +1,5 @@
 package com.yuyuto.no_title_mod.api.energy;
 
-import com.yuyuto.no_title_mod.NoTitleMod;
 import net.minecraft.nbt.CompoundTag;
 import org.jetbrains.annotations.NotNull;
 
@@ -74,7 +73,6 @@ public class NTEnergyNode {
 
     public CompoundTag saveNBT(){
         CompoundTag tag = new CompoundTag();
-        NoTitleMod.LOGGER.info("EnergyNode.saveNBT");
         tag.putDouble("Voltage", voltage);
         tag.putDouble("Current", current);
         tag.putDouble("Resistance", resistance);
@@ -82,7 +80,6 @@ public class NTEnergyNode {
         if (type != null){
             tag.putString("Type", type.name());
         }
-        NoTitleMod.LOGGER.info("EnergyNode.saved");
         return tag;
     }
 
