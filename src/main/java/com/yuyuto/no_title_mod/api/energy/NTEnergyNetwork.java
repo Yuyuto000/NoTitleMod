@@ -1,5 +1,6 @@
 package com.yuyuto.no_title_mod.api.energy;
 
+import com.yuyuto.no_title_mod.NoTitleMod;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -72,6 +73,11 @@ public class NTEnergyNetwork {
                 if(manager.getNode().getType() == NTEnergyNodeType.CONSUMER){
                     double resistance = searchResistance(level, node.pos(), new HashSet<>(), 0);
                     consumerResistance.put(node,resistance);
+                    NoTitleMod.LOGGER.info(
+                            "Consumer {} resistance {}",
+                            node.pos(),
+                            resistance
+                    );
                 }
             }
         }
@@ -92,7 +98,7 @@ public class NTEnergyNetwork {
         for(Direction dir : Direction.values()){
             BlockPos next = pos.relative(dir);
             BlockEntity nextEntity = level.getBlockEntity(next);
-            if(nextEntity == null){
+            if(!(nextEntity instanceof INTEnergyNodeManagements)){
                 continue;
             }
             double nextResistance = resistance;
