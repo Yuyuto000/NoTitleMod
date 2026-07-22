@@ -69,7 +69,7 @@ public class NTEnergyNetworkManager {
         }
     }
 
-    public static void rebuildNetwork(Level level, NTEnergyNetwork oldNetwork){
+    public static void rebuildNetwork(Level level, @NotNull NTEnergyNetwork oldNetwork){
 
         List<NTEnergyNodePos> nodes = new ArrayList<>(oldNetwork.getMembers());
         getNetworks(level).remove(oldNetwork);
