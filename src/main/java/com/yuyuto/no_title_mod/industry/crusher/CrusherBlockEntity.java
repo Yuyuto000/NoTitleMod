@@ -5,7 +5,11 @@ import com.yuyuto.no_title_mod.api.energy.*;
 import com.yuyuto.no_title_mod.registry.ModBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -25,7 +29,6 @@ public class CrusherBlockEntity extends BlockEntity implements INTEnergyNodeMana
     private final ItemStackHandler inventory = new ItemStackHandler(2);
     private final LazyOptional<IItemHandler> itemHandler = LazyOptional.of(() -> inventory);
     private final NTEnergyNode energyNode = new NTEnergyNode();
-    private NTEnergyNetwork network;
 
     // ============================弄らない==============================
     public CrusherBlockEntity(BlockPos pos, BlockState state) {
@@ -52,31 +55,19 @@ public class CrusherBlockEntity extends BlockEntity implements INTEnergyNodeMana
         NTEnergyNetworkManager.updateAround(level, worldPosition);
     }
 
-    @Override
-    public void setRemoved() {
-        if (network != null) {
-            NTEnergyNetworkManager.rebuildNetwork(level, network);
-        }
-        super.setRemoved();
-    }
-
     // =======================NBT系は触れたらダメ=========================
     @Override
     protected void saveAdditional(@NotNull CompoundTag tag){
-        NoTitleMod.LOGGER.info("SAVE START {}", this.getBlockPos());
         tag.put("inventory", inventory.serializeNBT());
         tag.put("EnergyNode", energyNode.saveNBT());
         super.saveAdditional(tag);
-        NoTitleMod.LOGGER.info("SAVE END {}", this.getBlockPos());
     }
 
     @Override
     public void load(@NotNull CompoundTag tag){
-        NoTitleMod.LOGGER.info("Load START {}", this.getBlockPos());
         super.load(tag);
         energyNode.loadNBT(tag.getCompound("EnergyNode"));
         inventory.deserializeNBT(tag.getCompound("inventory"));
-        NoTitleMod.LOGGER.info("Load END {}", this.getBlockPos());
     }
 
     //=================================================================
@@ -130,10 +121,15 @@ public class CrusherBlockEntity extends BlockEntity implements INTEnergyNodeMana
             entity.process();
             entity.progress = 0;
         }
+        if (entity.progress % 5 == 0){
+            ((ServerLevel)level).sendParticles(ParticleTypes.POOF, pos.getX()+0.5, pos.getY()+1, pos.getZ()+0.5, 2, 0.2, 0.1, 0.2, 0.01);
+        }
+        if(entity.progress % 20 == 0){
+            level.playSound(null, pos, SoundEvents.GRINDSTONE_USE, SoundSource.BLOCKS, 0.5F, 1.0F);
+        }
     }
 
     private void process() {
-        NoTitleMod.LOGGER.info("process");
         ItemStack input = inventory.getStackInSlot(0);
         ItemStack output = inventory.getStackInSlot(1);
         double requiredPower = 100;
@@ -143,14 +139,25 @@ public class CrusherBlockEntity extends BlockEntity implements INTEnergyNodeMana
             return;
         }
 
-        if (recipe != null && output.isEmpty()){
+        if (recipe != null && output.isEmpty()) {
             input.shrink(1);
             inventory.setStackInSlot(1, recipe.createResult());
+            energyNode.setPower(
+                    NTEnergyManager.decreasePower(
+                            energyNode.getPower(),
+                            requiredPower
+                    )
+            );
 
-            energyNode.setPower(NTEnergyManager.decreasePower(
-                    energyNode.getPower(),
-                    requiredPower
-            ));
+            if (level instanceof ServerLevel serverLevel) {
+                serverLevel.sendParticles(ParticleTypes.CAMPFIRE_COSY_SMOKE, worldPosition.getX() + 0.5, worldPosition.getY() + 0.8, worldPosition.getZ() + 0.5, 12, 0.3, 0.2, 0.3, 0.1);
+                serverLevel.sendParticles(ParticleTypes.POOF, worldPosition.getX() + 0.5, worldPosition.getY() + 0.8, worldPosition.getZ() + 0.5, 12, 0.3, 0.2, 0.3, 0.1);
+                serverLevel.sendParticles(ParticleTypes.CRIT, worldPosition.getX() + 0.5, worldPosition.getY() + 0.8, worldPosition.getZ() + 0.5, 12, 0.3, 0.2, 0.3, 0.1);
+            }
+            if (level != null) {
+                level.playSound(null, worldPosition, SoundEvents.ANVIL_HIT, SoundSource.BLOCKS, 0.3F, 1.0F);
+                level.playSound(null, worldPosition, SoundEvents.STONE_BREAK, SoundSource.BLOCKS, 0.8F, 1.0F);
+            }
         }
     }
 }

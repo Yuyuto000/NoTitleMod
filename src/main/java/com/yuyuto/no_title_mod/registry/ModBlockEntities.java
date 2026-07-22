@@ -2,6 +2,7 @@ package com.yuyuto.no_title_mod.registry;
 
 import com.yuyuto.no_title_mod.NoTitleMod;
 import com.yuyuto.no_title_mod.industry.crusher.CrusherBlockEntity;
+import com.yuyuto.no_title_mod.industry.diesel.DieselBlockEntity;
 import com.yuyuto.no_title_mod.industry.energy_cable.EnergyCableBlockEntity;
 import com.yuyuto.no_title_mod.industry.energy_genertator.EnergyGeneratorBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -28,6 +29,7 @@ public class ModBlockEntities {
                             ModBlocks.CRUSHER.get()
                     ).build(null)
             );
+
     public static final RegistryObject<BlockEntityType<EnergyCableBlockEntity>> ENERGY_CABLE =
             BLOCK_ENTITIES.register("energy_cable", () ->
                     BlockEntityType.Builder.of(
@@ -41,6 +43,14 @@ public class ModBlockEntities {
                     BlockEntityType.Builder.of(
                             EnergyGeneratorBlockEntity::new,
                             ModBlocks.ENERGY_GENERATOR.get()
+                    ).build(null)
+            );
+
+    public static final RegistryObject<BlockEntityType<DieselBlockEntity>> DIESEL =
+            BLOCK_ENTITIES.register("diesel", () ->
+                    BlockEntityType.Builder.of(
+                            DieselBlockEntity::new,
+                            ModBlocks.DIESEL.get()
                     ).build(null)
             );
     //====================================ここは弄らない=====================================

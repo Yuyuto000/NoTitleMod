@@ -1,9 +1,7 @@
 package com.yuyuto.no_title_mod.api.energy;
 
-import com.yuyuto.no_title_mod.NoTitleMod;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -12,11 +10,12 @@ import java.util.List;
 public class NTEnergyNetwork {
 
     private final List<NTEnergyNodePos> members = new ArrayList<>();
-    private double totalPower;
+
+    private double networkVoltage;
+    private double networkCurrent;
     private double networkPower;
 
     public void addMember(NTEnergyNodePos pos){
-
         if(!members.contains(pos)){
             members.add(pos);
         }
@@ -35,14 +34,13 @@ public class NTEnergyNetwork {
     }
 
     public void tick(ServerLevel level){
-        NoTitleMod.LOGGER.info("NETWORK TICK");
-
         generate(level);
         transfer(level);
+        distributePower(level);
         updateNodes(level);
     }
 
-    private @Nullable BlockEntity getEntity(@NotNull ServerLevel level, @NotNull NTEnergyNodePos node){
+    private @Nullable BlockEntity getEntity(ServerLevel level, NTEnergyNodePos node){
 
         if(!level.dimension().equals(node.dimension())){
             return null;
@@ -51,30 +49,37 @@ public class NTEnergyNetwork {
     }
 
     private void generate(ServerLevel level){
-        NoTitleMod.LOGGER.info("Network generate start");
-        totalPower = 0;
+
+        networkVoltage = 0;
+        double maxCurrent = 0;
         for(NTEnergyNodePos node : members){
             BlockEntity entity = getEntity(level,node);
             if(entity instanceof INTEnergyGenerator generator){
                 generator.generateEnergy();
-                NoTitleMod.LOGGER.info("GENERATOR FOUND {}", node.pos());
-                totalPower += generator.getNode().getPower();
+                networkVoltage = Math.max(networkVoltage, generator.getNode().getVoltage());
+                maxCurrent += generator.getMaxOutputCurrent();
             }
         }
+        networkCurrent = maxCurrent;
     }
-
 
     private void transfer(ServerLevel level){
 
-        double totalLoss = 0;
+        double totalResistance = 0;
         for(NTEnergyNodePos node : members){
             BlockEntity entity = getEntity(level,node);
             if(entity instanceof INTEnergyConnector connector){
-                totalLoss += connector.getResistance();
+                totalResistance += connector.getResistance();
             }
         }
-        networkPower = Math.max(totalPower - totalLoss,0);
-        distributePower(level);
+        if(totalResistance <= 0){
+            networkCurrent = 0;
+            networkPower = 0;
+            return;
+        }
+        double requiredCurrent = networkVoltage / totalResistance;
+        networkCurrent = Math.min(requiredCurrent, networkCurrent);
+        networkPower = networkVoltage * networkCurrent;
     }
 
     private void distributePower(ServerLevel level){
@@ -88,23 +93,32 @@ public class NTEnergyNetwork {
                 }
             }
         }
-        if(consumerCount == 0){
+        if(consumerCount <= 0){
             return;
         }
+        double currentPerConsumer = networkCurrent / consumerCount;
         double powerPerConsumer = networkPower / consumerCount;
         for(NTEnergyNodePos node : members){
             BlockEntity entity = getEntity(level,node);
-            if(entity instanceof INTEnergyNodeManagements manager){
-                switch(manager.getNode().getType()){
-                    case CONNECTOR -> manager.getNode().setPower(networkPower);
-                    case CONSUMER -> manager.getNode().setPower(powerPerConsumer);
+            if(!(entity instanceof INTEnergyNodeManagements manager)){
+                continue;
+            }
+            switch(manager.getNode().getType()){
+                case GENERATOR, CONNECTOR -> {
+                    manager.getNode().setVoltage(networkVoltage);
+                    manager.getNode().setCurrent(networkCurrent);
+                    manager.getNode().setPower(networkPower);
+                }
+                case CONSUMER -> {
+                    manager.getNode().setVoltage(networkVoltage);
+                    manager.getNode().setCurrent(currentPerConsumer);
+                    manager.getNode().setPower(powerPerConsumer);
                 }
             }
         }
     }
 
     private void updateNodes(ServerLevel level){
-
         for(NTEnergyNodePos node : members){
             BlockEntity entity = getEntity(level,node);
             if(entity instanceof INTEnergyNodeManagements manager){

@@ -2,6 +2,7 @@ package com.yuyuto.no_title_mod.registry;
 
 import com.yuyuto.no_title_mod.NoTitleMod;
 import com.yuyuto.no_title_mod.industry.crusher.CrusherBlock;
+import com.yuyuto.no_title_mod.industry.diesel.DieselBlock;
 import com.yuyuto.no_title_mod.industry.energy_cable.EnergyCableBlock;
 import com.yuyuto.no_title_mod.industry.energy_genertator.EnergyGeneratorBlock;
 import net.minecraft.world.item.BlockItem;
@@ -102,6 +103,17 @@ public class ModBlocks {
                                     .sound(SoundType.STONE)
                                     .strength(2f)
                                     .explosionResistance(1)
+                                    .mapColor(MapColor.STONE)
+                    ));
+
+    public static final RegistryObject<Block> DIESEL =
+            registerBlock("diesel",
+                    () -> new DieselBlock(
+                            BlockBehaviour.Properties.of()
+                                    .sound(SoundType.DEEPSLATE)
+                                    .strength(4f)
+                                    .explosionResistance(2)
+                                    .requiresCorrectToolForDrops()
                                     .mapColor(MapColor.STONE)
                     ));
 

@@ -56,5 +56,6 @@
   "item.notitlemod.titanium_ingot": "Titanium ingot",
   "item.notitlemod.tungsten_ingot": "Tungsten ingot",
   "item.notitlemod.zinc_dust": "Zinc Dust",
-  "item.notitlemod.zinc_ingot": "Zinc ingot"
+  "item.notitlemod.zinc_ingot": "Zinc ingot",
+  "text.notitlemod.diesel": "Diesel Engine Moderation"
 }

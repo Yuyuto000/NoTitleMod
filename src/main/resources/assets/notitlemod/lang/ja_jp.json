@@ -1,6 +1,5 @@
 {
   "creativetab.no_title_industry_tab": "No Titles 工業",
-  "text.notitlemod.energy_generator": "発電機管理画面",
   "block.notitlemod.aluminum_ore": "アルミニウム鉱石",
   "block.notitlemod.chromium_ore": "クロム鉱石",
   "block.notitlemod.cobalt_ore": "コバルト鉱石",
@@ -56,5 +55,7 @@
   "item.notitlemod.titanium_ingot": "チタンインゴット",
   "item.notitlemod.tungsten_ingot": "タングステンインゴット",
   "item.notitlemod.zinc_dust": "亜鉛紛",
-  "item.notitlemod.zinc_ingot": "亜鉛インゴット"
+  "item.notitlemod.zinc_ingot": "亜鉛インゴット",
+  "text.notitlemod.energy_generator": "発電機管理画面",
+  "text.notitlemod.diesel": "ディーゼル管理画面"
 }

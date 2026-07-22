@@ -16,7 +16,6 @@ import net.minecraft.world.level.block.state.BlockState;
 public class EnergyCableBlockEntity extends BlockEntity implements INTEnergyNodeManagements, INTEnergyConnector {
 
     private final NTEnergyNode energyNode = new NTEnergyNode();
-    private NTEnergyNetwork network;
 
     public EnergyCableBlockEntity(BlockPos pos, BlockState state){
         super(ModBlockEntities.ENERGY_CABLE.get(), pos, state);
@@ -40,14 +39,6 @@ public class EnergyCableBlockEntity extends BlockEntity implements INTEnergyNode
             return;
         }
         NTEnergyNetworkManager.updateAround(level, worldPosition);
-    }
-
-    @Override
-    public void setRemoved(){
-        if(network != null){
-            NTEnergyNetworkManager.rebuildNetwork(level, network);
-        }
-        super.setRemoved();
     }
 
     @Override

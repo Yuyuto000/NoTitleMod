@@ -29,7 +29,6 @@ public class ItemTransferWrapper implements IItemTransfer {
         return inventory.insertItem(slot, stack, simulate);
     }
 
-
     @Override
     public @NotNull ItemStack extractItem(int slot, int amount, boolean simulate, boolean notifyChanges) {
         return inventory.extractItem(slot, amount, simulate);

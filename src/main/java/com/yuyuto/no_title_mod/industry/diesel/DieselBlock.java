@@ -1,4 +1,4 @@
-package com.yuyuto.no_title_mod.industry.energy_genertator;
+package com.yuyuto.no_title_mod.industry.diesel;
 
 import com.lowdragmc.lowdraglib.gui.factory.BlockEntityUIFactory;
 import com.yuyuto.no_title_mod.registry.ModBlockEntities;
@@ -24,16 +24,15 @@ import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class EnergyGeneratorBlock extends BaseEntityBlock {
-    public EnergyGeneratorBlock(Properties properties) {
+public class DieselBlock extends BaseEntityBlock {
+    public DieselBlock(Properties properties) {
         super(properties);
         registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH));
-    }
-    public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
+    }public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
 
     @Override
     public @Nullable BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
-        return new  EnergyGeneratorBlockEntity(pos, state);
+        return new  DieselBlockEntity(pos, state);
     }
 
     @Override
@@ -47,29 +46,29 @@ public class EnergyGeneratorBlock extends BaseEntityBlock {
     }
 
     @Override
-    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(@NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> type){
-        return createTickerHelper(type, ModBlockEntities.ENERGY_GENERATOR.get(), (level1, pos, state1, entity) -> {
-            if (!level1.isClientSide) {
-                EnergyGeneratorBlockEntity.tick(level, pos, state, entity);
-            }
-        });
+    public @NotNull RenderShape getRenderShape(@NotNull BlockState state) {
+        return RenderShape.MODEL;
     }
 
     @Override
-    public @NotNull RenderShape getRenderShape(@NotNull BlockState state) {
-        return RenderShape.MODEL;
+    public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(@NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> type) {
+        return createTickerHelper(type, ModBlockEntities.DIESEL.get(), (level1, pos, state1, entity) -> {
+            if (!level1.isClientSide) {
+                DieselBlockEntity.tick(level, pos, state, entity);
+            }
+        });
     }
 
     @SuppressWarnings("deprecation")
     @Override
     public @NotNull InteractionResult use(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull InteractionHand hand, @NotNull BlockHitResult hit){
-        if(level.isClientSide){
+        if (level.isClientSide) {
             return InteractionResult.SUCCESS;
         }
         BlockEntity blockEntity = level.getBlockEntity(pos);
-        if(blockEntity instanceof EnergyGeneratorBlockEntity generator){
-            if(player instanceof ServerPlayer serverPlayer){
-                BlockEntityUIFactory.INSTANCE.openUI(generator, serverPlayer);
+        if (blockEntity instanceof DieselBlockEntity diesel){
+            if (player instanceof ServerPlayer serverPlayer) {
+                BlockEntityUIFactory.INSTANCE.openUI(diesel, serverPlayer);
             }
         }
         return InteractionResult.CONSUME;
