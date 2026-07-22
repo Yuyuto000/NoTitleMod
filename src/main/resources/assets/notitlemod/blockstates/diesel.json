@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=north": { "model": "notitlemod:block/diesel" },
+    "facing=east":  { "model": "notitlemod:block/diesel", "y": 90 },
+    "facing=south": { "model": "notitlemod:block/diesel", "y": 180 },
+    "facing=west":  { "model": "notitlemod:block/diesel", "y": 270 }
+  }
+}
