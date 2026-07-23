@@ -22,10 +22,7 @@ public class CrusherBlock extends BaseEntityBlock {
 
     public CrusherBlock(Properties properties) {
         super(properties);
-        registerDefaultState(
-                this.stateDefinition.any()
-                        .setValue(FACING, Direction.NORTH)
-        );
+        registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH));
     }
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
 

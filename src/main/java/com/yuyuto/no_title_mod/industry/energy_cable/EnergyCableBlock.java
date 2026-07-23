@@ -1,6 +1,6 @@
 package com.yuyuto.no_title_mod.industry.energy_cable;
 
-import com.yuyuto.no_title_mod.api.energy.INTEnergyNodeManagements;
+import com.yuyuto.no_title_mod.registry.ModBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -11,6 +11,8 @@ import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -18,6 +20,7 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -55,9 +58,19 @@ public class EnergyCableBlock extends BaseEntityBlock {
         builder.add(NORTH, SOUTH, EAST, WEST, UP, DOWN);
     }
 
-    private boolean canConnect(@NotNull LevelAccessor level, BlockPos pos) {
-        BlockEntity be = level.getBlockEntity(pos);
-        return be instanceof INTEnergyNodeManagements;
+    private boolean canConnectEnergy(@NotNull LevelAccessor level, BlockPos pos){
+
+        BlockState state = level.getBlockState(pos);
+        // ケーブル同士
+        if(state.getBlock() instanceof EnergyCableBlock){
+            return true;
+        }
+        BlockEntity blockEntity = level.getBlockEntity(pos);
+        if(blockEntity == null){
+            return false;
+        }
+        // FE対応機械
+        return blockEntity.getCapability(ForgeCapabilities.ENERGY).isPresent();
     }
 
     @Override
@@ -65,12 +78,21 @@ public class EnergyCableBlock extends BaseEntityBlock {
         Level level = context.getLevel();
         BlockPos pos = context.getClickedPos();
         return defaultBlockState()
-                .setValue(NORTH, canConnect(level, pos.north()))
-                .setValue(SOUTH, canConnect(level, pos.south()))
-                .setValue(EAST,  canConnect(level, pos.east()))
-                .setValue(WEST,  canConnect(level, pos.west()))
-                .setValue(UP,    canConnect(level, pos.above()))
-                .setValue(DOWN,  canConnect(level, pos.below()));
+                .setValue(NORTH, canConnectEnergy(level, pos.north()))
+                .setValue(SOUTH, canConnectEnergy(level, pos.south()))
+                .setValue(EAST,  canConnectEnergy(level, pos.east()))
+                .setValue(WEST,  canConnectEnergy(level, pos.west()))
+                .setValue(UP,    canConnectEnergy(level, pos.above()))
+                .setValue(DOWN,  canConnectEnergy(level, pos.below()));
+    }
+
+    @Override
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(@NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> type){
+        return createTickerHelper(type, ModBlockEntities.ENERGY_CABLE.get(), (level1, pos, state1, entity) ->{
+            if (!level1.isClientSide){
+                EnergyCableBlockEntity.tick(level, pos, state, entity);
+            }
+        });
     }
 
     @SuppressWarnings("deprecation")
@@ -78,12 +100,12 @@ public class EnergyCableBlock extends BaseEntityBlock {
     public @NotNull BlockState updateShape(@NotNull BlockState state, @NotNull Direction direction, @NotNull BlockState neighborState, @NotNull LevelAccessor level, @NotNull BlockPos pos, @NotNull BlockPos neighborPos) {
 
         return switch (direction) {
-            case NORTH -> state.setValue(NORTH, canConnect(level, neighborPos));
-            case SOUTH -> state.setValue(SOUTH, canConnect(level, neighborPos));
-            case EAST  -> state.setValue(EAST,  canConnect(level, neighborPos));
-            case WEST  -> state.setValue(WEST,  canConnect(level, neighborPos));
-            case UP    -> state.setValue(UP,    canConnect(level, neighborPos));
-            case DOWN  -> state.setValue(DOWN,  canConnect(level, neighborPos));
+            case NORTH -> state.setValue(NORTH, canConnectEnergy(level, neighborPos));
+            case SOUTH -> state.setValue(SOUTH, canConnectEnergy(level, neighborPos));
+            case EAST  -> state.setValue(EAST,  canConnectEnergy(level, neighborPos));
+            case WEST  -> state.setValue(WEST,  canConnectEnergy(level, neighborPos));
+            case UP    -> state.setValue(UP,    canConnectEnergy(level, neighborPos));
+            case DOWN  -> state.setValue(DOWN,  canConnectEnergy(level, neighborPos));
         };
     }
 
