@@ -156,8 +156,4 @@ public class CrusherBlockEntity extends BlockEntity {
         level.playSound(null, worldPosition, SoundEvents.ANVIL_HIT, SoundSource.BLOCKS, 0.5F, 1.0F);
     }
 
-    public EnergyStorage getEnergyStorage(){
-
-        return energyStorage;
-    }
 }

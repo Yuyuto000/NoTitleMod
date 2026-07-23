@@ -26,9 +26,11 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.energy.EnergyStorage;
 import net.minecraftforge.energy.IEnergyStorage;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class EnergyGeneratorBlockEntity extends BlockEntity implements IUIHolder {
 
@@ -41,8 +43,8 @@ public class EnergyGeneratorBlockEntity extends BlockEntity implements IUIHolder
     private final NTEnergyStorage energyStorage =
             new NTEnergyStorage(
                     100000, //容量
-                    0,   //入力
-                    2000    //出力
+                    Integer.MAX_VALUE,   //入力
+                    Integer.MAX_VALUE    //出力
             );
     /*
      * 機械入力
@@ -162,42 +164,71 @@ public class EnergyGeneratorBlockEntity extends BlockEntity implements IUIHolder
         energyStorage.addEnergy(output);
     }
 
-    private void outputEnergy(){
-
-        if(level == null){
-            return;
-        }
-        for(Direction direction : Direction.values()){
-            BlockEntity target = level.getBlockEntity(worldPosition.relative(direction));
-            if(!(target instanceof EnergyCableBlockEntity)){
-                continue;
-            }
-            target.getCapability(ForgeCapabilities.ENERGY, direction.getOpposite()).ifPresent(storage -> {
-                int amount = energyStorage.extractEnergy(2000, true);
-                int accepted = storage.receiveEnergy(amount, false);
-                if(accepted > 0){
-                    NoTitleMod.LOGGER.info("[Generator] Send {} FE -> {}", accepted, target.getClass().getSimpleName());
-                }
-                energyStorage.extractEnergy(accepted, false);
-            });
-        }
-    }
-
     /*
      * =========================
      * FE Access
      * =========================
      */
     @Override
-    public <T> @NotNull LazyOptional<T> getCapability(@NotNull Capability<T> capability, Direction side){
-        if(capability == ForgeCapabilities.ENERGY){
+    public <T> @NotNull LazyOptional<T> getCapability(@NotNull Capability<T> capability, Direction side) {
+        if (capability == ForgeCapabilities.ENERGY) {
             return energyHandler.cast();
         }
         return super.getCapability(capability, side);
     }
 
-    public EnergyStorage getEnergyStorage(){
-        return energyStorage;
+    private void outputEnergy(){
+
+        int available = energyStorage.getEnergyStored();
+        if(available <= 0){
+            return;
+        }
+        List<BlockEntity> consumers = findEnergyConsumers();
+        if(consumers.isEmpty()){
+            return;
+        }
+        int each = available / consumers.size();
+        AtomicInteger acceptedTotal = new AtomicInteger();
+        for(BlockEntity consumer : consumers){
+            consumer.getCapability(ForgeCapabilities.ENERGY).ifPresent(storage -> {
+                int accepted = storage.receiveEnergy(each,false);
+                acceptedTotal.addAndGet(accepted);
+                NoTitleMod.LOGGER.info("[Generator] Send {} FE -> {}", accepted, consumer.getClass().getSimpleName());
+            });
+        }
+        energyStorage.extractEnergy(acceptedTotal.get(), false);
+    }
+
+    private @NotNull List<BlockEntity> findEnergyConsumers(){
+
+        List<BlockEntity> result = new ArrayList<>();
+        Queue<BlockPos> queue = new LinkedList<>();
+        Set<BlockPos> visited = new HashSet<>();
+        for(Direction dir : Direction.values()){
+            queue.add(worldPosition.relative(dir));
+        }
+        while(!queue.isEmpty()){
+            BlockPos pos = queue.poll();
+            if(!visited.add(pos)){
+                continue;
+            }
+            BlockEntity be = level.getBlockEntity(pos);
+            if(be == null){
+                continue;
+            }
+            // Cableなら探索継続
+            if(be instanceof EnergyCableBlockEntity){
+                for(Direction dir : Direction.values()){
+                    queue.add(pos.relative(dir));
+                }
+                continue;
+            }
+            // Energy受信可能ならConsumer
+            if(be.getCapability(ForgeCapabilities.ENERGY).isPresent()){
+                result.add(be);
+            }
+        }
+        return result;
     }
 
     @Override
