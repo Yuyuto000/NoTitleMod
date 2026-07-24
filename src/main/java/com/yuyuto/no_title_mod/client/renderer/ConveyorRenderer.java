@@ -30,7 +30,7 @@ public class ConveyorRenderer implements BlockEntityRenderer<ConveyorBlockEntity
         }
         poseStack.pushPose();
         Direction dir = blockEntity.getDirection();
-        poseStack.translate(0.5 + dir.getStepX() * offset, 0.60, 0.5 + dir.getStepZ() * offset);
+        poseStack.translate(0.5 - dir.getStepX() * offset, 0.60, 0.5 - dir.getStepZ() * offset);
         // アイテムを寝かせる
         poseStack.mulPose(Axis.XP.rotationDegrees(90));
         // 少し小さく
