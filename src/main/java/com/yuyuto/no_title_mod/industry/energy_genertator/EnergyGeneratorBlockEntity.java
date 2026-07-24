@@ -90,6 +90,7 @@ public class EnergyGeneratorBlockEntity extends BlockEntity implements INTEnergy
          * 動力探索
          */
         entity.findMechanicalPower(level,pos);
+        entity.updateCircuitInfo();
 
         /*
          * 動力なし
@@ -169,11 +170,18 @@ public class EnergyGeneratorBlockEntity extends BlockEntity implements INTEnergy
         }
         circuit = NTEnergyCircuitManager.getCircuit(level, worldPosition);
         circuit.update();
+    }
+
+    private void updateCircuitInfo(){
+
+        if(level == null){
+            return;
+        }
+        circuit = NTEnergyCircuitManager.getCircuit(level, worldPosition);
         circuitNodeCount = circuit.getGenerators().size() + circuit.getConsumers().size();
         circuitGeneratorCount = circuit.getGenerators().size();
         circuitConsumerCount = circuit.getConsumers().size();
     }
-
     /*
      * =========================
      * FE Access
@@ -186,9 +194,6 @@ public class EnergyGeneratorBlockEntity extends BlockEntity implements INTEnergy
         }
         return super.getCapability(capability, side);
     }
-
-
-
 
     @Override
     public void invalidateCaps(){

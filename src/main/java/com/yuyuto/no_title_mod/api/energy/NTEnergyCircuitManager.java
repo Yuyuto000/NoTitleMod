@@ -1,37 +1,37 @@
 package com.yuyuto.no_title_mod.api.energy;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class NTEnergyCircuitManager {
 
-    private static final List<NTEnergyCircuit> CIRCUITS = new ArrayList<>();
-    public static @NotNull NTEnergyCircuit getCircuit(Level level, BlockPos pos){
+    private static final Map<ResourceKey<Level>, List<NTEnergyCircuit>> CIRCUITS = new HashMap<>();
+    public static @NotNull NTEnergyCircuit getCircuit(@NotNull Level level, BlockPos pos){
 
-        /*
-         * 既存回路探索
-         */
-        for(NTEnergyCircuit circuit : CIRCUITS){
+        List<NTEnergyCircuit> circuits =
+                CIRCUITS.computeIfAbsent(level.dimension(), key -> new ArrayList<>());
+        for(NTEnergyCircuit circuit : circuits){
             if(circuit.contains(pos)){
                 return circuit;
             }
         }
-
-        /*
-         * 新規作成
-         */
         NTEnergyCircuit circuit = NTEnergyCircuitBuilder.build(level, pos);
-        CIRCUITS.add(circuit);
+        circuits.add(circuit);
         return circuit;
     }
 
     public static void tick(){
-        for(NTEnergyCircuit circuit : CIRCUITS){
-            circuit.update();
+        for(List<NTEnergyCircuit> circuits : CIRCUITS.values()){
+            for(NTEnergyCircuit circuit : circuits){
+                circuit.update();
+            }
         }
     }
 
