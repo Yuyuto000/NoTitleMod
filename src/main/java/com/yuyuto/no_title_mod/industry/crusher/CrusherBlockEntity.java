@@ -1,6 +1,6 @@
 package com.yuyuto.no_title_mod.industry.crusher;
 
-import com.yuyuto.no_title_mod.NoTitleMod;
+import com.yuyuto.no_title_mod.api.energy.INTEnergyConsumer;
 import com.yuyuto.no_title_mod.registry.ModBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -16,13 +16,12 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.energy.EnergyStorage;
-import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 
-public class CrusherBlockEntity extends BlockEntity {
+@SuppressWarnings("DataFlowIssue")
+public class CrusherBlockEntity extends BlockEntity implements INTEnergyConsumer {
 
     private int progress;
     /*
@@ -31,21 +30,12 @@ public class CrusherBlockEntity extends BlockEntity {
      */
     private final ItemStackHandler inventory = new ItemStackHandler(2);
     private final LazyOptional<IItemHandler> itemHandler = LazyOptional.of(() -> inventory);
-    /*
-     * FE
-     */
-    private final EnergyStorage energyStorage =
-            new EnergyStorage(
-                    50000,
-                    1000,
-                    1000
-            );
-    private final LazyOptional<IEnergyStorage> energyHandler = LazyOptional.of(() -> energyStorage);
+    private boolean powered;
 
     /*
      * 機械負荷
      */
-    private static final double REQUIRED_ENERGY = 100;
+    private static final double ENERGY_DEMAND = 2000;
     public CrusherBlockEntity(BlockPos pos, BlockState state){
         super(ModBlockEntities.CRUSHER.get(), pos, state);
     }
@@ -57,7 +47,6 @@ public class CrusherBlockEntity extends BlockEntity {
     @Override
     protected void saveAdditional(@NotNull CompoundTag tag){
         tag.put("inventory", inventory.serializeNBT());
-        tag.putInt("Energy", energyStorage.getEnergyStored());
         super.saveAdditional(tag);
     }
 
@@ -65,7 +54,22 @@ public class CrusherBlockEntity extends BlockEntity {
     public void load(@NotNull CompoundTag tag){
         super.load(tag);
         inventory.deserializeNBT(tag.getCompound("inventory"));
-        energyStorage.receiveEnergy(tag.getInt("Energy"), false);
+    }
+
+    @Override
+    public double getEnergyDemand(){
+        return ENERGY_DEMAND;
+    }
+
+    @Override
+    public void setPowered(boolean value){
+        powered = value;
+        setChanged();
+    }
+
+    @Override
+    public boolean canWork(){
+        return powered;
     }
 
     /*
@@ -78,9 +82,6 @@ public class CrusherBlockEntity extends BlockEntity {
         if(capability == ForgeCapabilities.ITEM_HANDLER){
             return itemHandler.cast();
         }
-        if(capability == ForgeCapabilities.ENERGY){
-            return energyHandler.cast();
-        }
         return super.getCapability(capability, side);
     }
 
@@ -88,33 +89,34 @@ public class CrusherBlockEntity extends BlockEntity {
     public void invalidateCaps(){
         super.invalidateCaps();
         itemHandler.invalidate();
-        energyHandler.invalidate();
     }
 
     /*
      * Tick
      */
+    @SuppressWarnings("unused")
     public static void tick(Level level, BlockPos pos, BlockState state, @NotNull CrusherBlockEntity entity){
+
         /*
-         * FE不足
+         * Circuitから電力供給なし
          */
-        if(entity.energyStorage.getEnergyStored() < REQUIRED_ENERGY){
+        if(!entity.powered){
             entity.progress = 0;
             return;
         }
+        /*
+         * 稼働処理
+         */
         entity.pullItem(pos);
         entity.pushItem(pos);
-        entity.progress++;
         /*
-         * Tick消費
+         * 消費時間
          */
-        entity.energyStorage.extractEnergy((int)REQUIRED_ENERGY, false);
+        entity.progress++;
         if(entity.progress >= 100){
             entity.process();
             entity.progress = 0;
-        }
-        if (level.getGameTime() % 20 == 0){
-            NoTitleMod.LOGGER.info("[Crusher {} ] FE={}", pos, entity.energyStorage.getEnergyStored());
+
         }
         if(entity.progress % 5 == 0 && level instanceof ServerLevel server){
             server.sendParticles(ParticleTypes.POOF, pos.getX()+0.5, pos.getY()+1, pos.getZ()+0.5, 2, 0.2, 0.1, 0.2, 0.01);

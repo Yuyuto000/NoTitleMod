@@ -5,11 +5,8 @@ import com.lowdragmc.lowdraglib.gui.modular.ModularUI;
 import com.lowdragmc.lowdraglib.gui.widget.*;
 import com.lowdragmc.lowdraglib.gui.texture.ResourceTexture;
 import com.yuyuto.no_title_mod.NoTitleMod;
-import com.yuyuto.no_title_mod.api.energy.INTMechanicalPowerSource;
-import com.yuyuto.no_title_mod.api.energy.NTEnergyAPI;
-import com.yuyuto.no_title_mod.api.energy.NTEnergyStorage;
+import com.yuyuto.no_title_mod.api.energy.*;
 import com.yuyuto.no_title_mod.gui.NTGuiTextures;
-import com.yuyuto.no_title_mod.industry.energy_cable.EnergyCableBlockEntity;
 import com.yuyuto.no_title_mod.registry.ModBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -29,10 +26,7 @@ import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.IEnergyStorage;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
-
-public class EnergyGeneratorBlockEntity extends BlockEntity implements IUIHolder {
+public class EnergyGeneratorBlockEntity extends BlockEntity implements INTEnergyGenerator, IUIHolder {
 
     /*
      * =========================
@@ -49,12 +43,17 @@ public class EnergyGeneratorBlockEntity extends BlockEntity implements IUIHolder
     /*
      * 機械入力
      */
+    @SuppressWarnings("FieldCanBeLocal")
+    private NTEnergyCircuit circuit;
     private double mechanicalPower = 0;
     private final LazyOptional<IEnergyStorage> energyHandler = LazyOptional.of(() -> energyStorage);
     /*
      * 発電表示用
      */
     private double generatedEnergy = 0;
+    private int circuitNodeCount;
+    private int circuitConsumerCount;
+    private int circuitGeneratorCount;
     private int soundTick;
     private static final double POWER_THRESHOLD = 0.1;
 
@@ -104,9 +103,9 @@ public class EnergyGeneratorBlockEntity extends BlockEntity implements IUIHolder
          * 発電処理
          */
         entity.generateEnergy();
-        entity.outputEnergy();
+        entity.updateCircuit();
         if (level.getGameTime() % 20 == 0){
-            NoTitleMod.LOGGER.info("[Generator] FE={} Output={}", entity.energyStorage.getEnergyStored(), entity.generatedEnergy);
+            NoTitleMod.LOGGER.info("[Generator] Output={}", entity.generatedEnergy);
         }
 
         /*
@@ -120,6 +119,11 @@ public class EnergyGeneratorBlockEntity extends BlockEntity implements IUIHolder
             server.sendParticles(ParticleTypes.ELECTRIC_SPARK, pos.getX()+0.5, pos.getY()+1, pos.getZ()+0.5, 2, 0.1, 0.05, 0.1, 0.01);
         }
         entity.setChanged();
+    }
+
+    @Override
+    public double getGeneratedEnergy(){
+        return generatedEnergy;
     }
 
     /*
@@ -145,23 +149,29 @@ public class EnergyGeneratorBlockEntity extends BlockEntity implements IUIHolder
      */
     private void generateEnergy(){
 
-        /*
-         * 基本発電量
-         *
-         * 機械出力をFEへ変換
-         */
         double baseEnergy = mechanicalPower * 0.8;
         /*
          * NTEnergyAPIによる変動
          */
         if (level != null) {
             generatedEnergy = NTEnergyAPI.calculateGeneration(baseEnergy, level.getGameTime(), 0.05);
+            generatedEnergy = Math.floor(generatedEnergy * 10) / 10.0;
+            if(generatedEnergy < 0.1){
+                generatedEnergy = 0;
+            }
         }
-        /*
-         * FEへ変換
-         */
-        int output = (int)Math.max(generatedEnergy, 0);
-        energyStorage.addEnergy(output);
+    }
+
+    private void updateCircuit(){
+
+        if(level == null){
+            return;
+        }
+        circuit = NTEnergyCircuitManager.getCircuit(level, worldPosition);
+        circuit.update();
+        circuitNodeCount = circuit.getGenerators().size() + circuit.getConsumers().size();
+        circuitGeneratorCount = circuit.getGenerators().size();
+        circuitConsumerCount = circuit.getConsumers().size();
     }
 
     /*
@@ -177,59 +187,8 @@ public class EnergyGeneratorBlockEntity extends BlockEntity implements IUIHolder
         return super.getCapability(capability, side);
     }
 
-    private void outputEnergy(){
 
-        int available = energyStorage.getEnergyStored();
-        if(available <= 0){
-            return;
-        }
-        List<BlockEntity> consumers = findEnergyConsumers();
-        if(consumers.isEmpty()){
-            return;
-        }
-        int each = available / consumers.size();
-        AtomicInteger acceptedTotal = new AtomicInteger();
-        for(BlockEntity consumer : consumers){
-            consumer.getCapability(ForgeCapabilities.ENERGY).ifPresent(storage -> {
-                int accepted = storage.receiveEnergy(each,false);
-                acceptedTotal.addAndGet(accepted);
-                NoTitleMod.LOGGER.info("[Generator] Send {} FE -> {}", accepted, consumer.getClass().getSimpleName());
-            });
-        }
-        energyStorage.extractEnergy(acceptedTotal.get(), false);
-    }
 
-    private @NotNull List<BlockEntity> findEnergyConsumers(){
-
-        List<BlockEntity> result = new ArrayList<>();
-        Queue<BlockPos> queue = new LinkedList<>();
-        Set<BlockPos> visited = new HashSet<>();
-        for(Direction dir : Direction.values()){
-            queue.add(worldPosition.relative(dir));
-        }
-        while(!queue.isEmpty()){
-            BlockPos pos = queue.poll();
-            if(!visited.add(pos)){
-                continue;
-            }
-            BlockEntity be = level.getBlockEntity(pos);
-            if(be == null){
-                continue;
-            }
-            // Cableなら探索継続
-            if(be instanceof EnergyCableBlockEntity){
-                for(Direction dir : Direction.values()){
-                    queue.add(pos.relative(dir));
-                }
-                continue;
-            }
-            // Energy受信可能ならConsumer
-            if(be.getCapability(ForgeCapabilities.ENERGY).isPresent()){
-                result.add(be);
-            }
-        }
-        return result;
-    }
 
     @Override
     public void invalidateCaps(){
@@ -247,8 +206,9 @@ public class EnergyGeneratorBlockEntity extends BlockEntity implements IUIHolder
         group.addWidget(new ImageWidget(0, 0, 176, 130, new ResourceTexture(NTGuiTextures.GENERATOR)));
         group.addWidget(new LabelWidget(8, 6, Component.translatable("text.notitlemod.energy_generator")));
         group.addWidget(new LabelWidget(10, 30, () -> "Mechanical: " + String.format("%.2f", mechanicalPower) + " W"));
-        group.addWidget(new LabelWidget(10, 55, () -> "Energy: " + energyStorage.getEnergyStored() + " FE"));
-        group.addWidget(new LabelWidget(10, 80, () -> "Output: " + String.format("%.2f", generatedEnergy) + " FE/t"));
+        group.addWidget(new LabelWidget(10, 45, () -> "Output: " + String.format("%.1f", generatedEnergy) + " FE/t"));
+        group.addWidget(new LabelWidget(10,60, () -> "Circuit Node: " + circuitNodeCount));
+        group.addWidget(new LabelWidget(10,75, () -> "Generators: " + circuitGeneratorCount + " Consumers: " + circuitConsumerCount));
         return group;
     }
 
