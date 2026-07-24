@@ -49,7 +49,6 @@ public class NTEnergyCircuit {
                 totalDemand += energyConsumer.getEnergyDemand();
             }
         }
-        NoTitleMod.LOGGER.info("[Circuit] Generator={} Consumer={} Generation={} Demand={}", generators.size(), consumers.size(), totalGeneration, totalDemand);
     }
 
     /*
@@ -64,7 +63,6 @@ public class NTEnergyCircuit {
         for(BlockEntity consumer : consumers){
             if(consumer instanceof INTEnergyConsumer energyConsumer){
                 energyConsumer.setPowered(enough);
-                NoTitleMod.LOGGER.info("[Circuit] {} powered={}", consumer.getClass().getSimpleName(), enough);
             }
         }
     }

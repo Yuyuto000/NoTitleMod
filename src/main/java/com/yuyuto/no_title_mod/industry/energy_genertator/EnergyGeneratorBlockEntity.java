@@ -105,9 +105,6 @@ public class EnergyGeneratorBlockEntity extends BlockEntity implements INTEnergy
          */
         entity.generateEnergy();
         entity.updateCircuit();
-        if (level.getGameTime() % 20 == 0){
-            NoTitleMod.LOGGER.info("[Generator] Output={}", entity.generatedEnergy);
-        }
 
         /*
          * 演出
@@ -208,7 +205,7 @@ public class EnergyGeneratorBlockEntity extends BlockEntity implements INTEnergy
      */
     private @NotNull WidgetGroup createUIWidgets(){
         WidgetGroup group = new WidgetGroup(0, 0, 176, 166);
-        group.addWidget(new ImageWidget(0, 0, 176, 130, new ResourceTexture(NTGuiTextures.GENERATOR)));
+        group.addWidget(new ImageWidget(0, 0, 176, 130, new ResourceTexture(NTGuiTextures.MONITORING)));
         group.addWidget(new LabelWidget(8, 6, Component.translatable("text.notitlemod.energy_generator")));
         group.addWidget(new LabelWidget(10, 30, () -> "Mechanical: " + String.format("%.2f", mechanicalPower) + " W"));
         group.addWidget(new LabelWidget(10, 45, () -> "Output: " + String.format("%.1f", generatedEnergy) + " FE/t"));

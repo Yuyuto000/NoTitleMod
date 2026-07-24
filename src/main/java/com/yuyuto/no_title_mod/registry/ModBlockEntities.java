@@ -1,11 +1,14 @@
 package com.yuyuto.no_title_mod.registry;
 
 import com.yuyuto.no_title_mod.NoTitleMod;
+import com.yuyuto.no_title_mod.industry.conveyor.ConveyorBlockEntity;
 import com.yuyuto.no_title_mod.industry.crusher.CrusherBlockEntity;
 import com.yuyuto.no_title_mod.industry.diesel.DieselBlockEntity;
 import com.yuyuto.no_title_mod.industry.energy_cable.EnergyCableBlockEntity;
 import com.yuyuto.no_title_mod.industry.energy_genertator.EnergyGeneratorBlockEntity;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -53,6 +56,15 @@ public class ModBlockEntities {
                             ModBlocks.DIESEL.get()
                     ).build(null)
             );
+
+    public static final RegistryObject<BlockEntityType<ConveyorBlockEntity>> CONVEYOR =
+            BLOCK_ENTITIES.register("conveyor", () ->
+                    BlockEntityType.Builder.of(
+                            ConveyorBlockEntity::new,
+                            ModBlocks.CONVEYOR.get()
+                    ).build(null)
+            );
+
     //====================================ここは弄らない=====================================
     public static void register(IEventBus eventBus){
         BLOCK_ENTITIES.register(eventBus);

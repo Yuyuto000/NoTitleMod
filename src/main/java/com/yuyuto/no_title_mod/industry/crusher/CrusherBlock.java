@@ -1,6 +1,5 @@
 package com.yuyuto.no_title_mod.industry.crusher;
 
-import com.yuyuto.no_title_mod.NoTitleMod;
 import com.yuyuto.no_title_mod.registry.ModBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;

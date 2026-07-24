@@ -33,8 +33,8 @@ import org.jetbrains.annotations.NotNull;
 public class DieselBlockEntity extends BlockEntity implements INTMechanicalPowerSource, IUIHolder {
 
     private int burnTime;
-    private int maxBurnTime;
     private double rpm = 0;
+    private int maxBurnTime;
     private static final double MAX_RPM = 1800;
     private static final double RESPONSE = 0.05;
     private static final double TORQUE = 250;
@@ -46,7 +46,10 @@ public class DieselBlockEntity extends BlockEntity implements INTMechanicalPower
     // =======================NBT系は触れたらダメ=========================
     @Override
     protected void saveAdditional(@NotNull CompoundTag tag){
+
         tag.put("inventory", inventory.serializeNBT());
+        tag.putInt("BurnTime", burnTime);
+        tag.putInt("MaxBurnTime", maxBurnTime);
         super.saveAdditional(tag);
     }
 
@@ -54,6 +57,8 @@ public class DieselBlockEntity extends BlockEntity implements INTMechanicalPower
     public void load(@NotNull CompoundTag tag){
         super.load(tag);
         inventory.deserializeNBT(tag.getCompound("inventory"));
+        burnTime = tag.getInt("BurnTime");
+        maxBurnTime = tag.getInt("MaxBurnTime");
     }
     //=================================================================
 
@@ -140,19 +145,13 @@ public class DieselBlockEntity extends BlockEntity implements INTMechanicalPower
         maxBurnTime = burn;
     }
 
-    public double getBurnProgress(){
-        if(maxBurnTime == 0){
-            return 0;
-        }
-        return (double)burnTime / maxBurnTime;
-    }
-
     private @NotNull WidgetGroup createUIWidget(){
         WidgetGroup group = new WidgetGroup(0, 0, 176, 166);
-        group.addWidget(new ImageWidget(0, 0, 176, 166, new ResourceTexture(NTGuiTextures.GENERATOR)));
+        group.addWidget(new ImageWidget(0, 0, 176, 166, new ResourceTexture(NTGuiTextures.MACHINE_INVENTORY)));
         group.addWidget(new SlotWidget(itemTransfer, 0, 80, 30, true, true));
         group.addWidget(new LabelWidget(8, 6, Component.translatable("text.notitlemod.diesel")));
-        group.addWidget(new LabelWidget(6, 23, () -> "Power Output: " + getBurnProgress() + "J"));
+        group.addWidget(new LabelWidget(6, 50, () -> "RPM: " + String.format("%.0f", rpm)));
+        group.addWidget(new LabelWidget(6, 70, () -> "Power: " + String.format("%.1f", getMechanicalPower()) + " W"));
         PlayerInventoryWidget inventoryWidget = new PlayerInventoryWidget();
         inventoryWidget.setSelfPosition(new Position(2, 83));
         group.addWidget(inventoryWidget);
