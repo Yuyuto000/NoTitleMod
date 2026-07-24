@@ -16,7 +16,7 @@ public class NTEnergyCircuitBuilder {
 
     public static @NotNull NTEnergyCircuit build(Level level, BlockPos start){
 
-        NTEnergyCircuit circuit = new NTEnergyCircuit();
+        NTEnergyCircuit circuit = new NTEnergyCircuit(level);
         Queue<BlockPos> queue = new LinkedList<>();
         Set<BlockPos> visited = new HashSet<>();
         queue.add(start);
@@ -25,6 +25,7 @@ public class NTEnergyCircuitBuilder {
             if(!visited.add(pos)){
                 continue;
             }
+            circuit.addPosition(pos);
             BlockEntity be = level.getBlockEntity(pos);
             if(be == null){
                 continue;

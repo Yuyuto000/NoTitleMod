@@ -1,5 +1,7 @@
 package com.yuyuto.no_title_mod.industry.energy_cable;
 
+import com.yuyuto.no_title_mod.api.energy.INTEnergyConsumer;
+import com.yuyuto.no_title_mod.api.energy.INTEnergyGenerator;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -17,7 +19,6 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -58,16 +59,21 @@ public class EnergyCableBlock extends BaseEntityBlock {
     private boolean canConnectEnergy(@NotNull LevelAccessor level, BlockPos pos){
 
         BlockState state = level.getBlockState(pos);
-        // ケーブル同士
+
+        /*
+         * Cable
+         */
         if(state.getBlock() instanceof EnergyCableBlock){
             return true;
         }
+        /*
+         * Energy対応Block
+         */
         BlockEntity blockEntity = level.getBlockEntity(pos);
-        if(blockEntity == null){
-            return false;
+        if(blockEntity instanceof INTEnergyGenerator){
+            return true;
         }
-        // FE対応機械
-        return blockEntity.getCapability(ForgeCapabilities.ENERGY).isPresent();
+        return blockEntity instanceof INTEnergyConsumer;
     }
 
     @Override

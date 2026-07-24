@@ -4,25 +4,35 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 public class NTEnergyCircuitManager {
 
-    private static final Map<String,NTEnergyCircuit> CIRCUITS = new HashMap<>();
+    private static final List<NTEnergyCircuit> CIRCUITS = new ArrayList<>();
+    public static @NotNull NTEnergyCircuit getCircuit(Level level, BlockPos pos){
 
-    public static NTEnergyCircuit getCircuit(Level level, BlockPos pos){
-        String key = createKey(level,pos);
-        if(!CIRCUITS.containsKey(key)){
-            NTEnergyCircuit circuit = NTEnergyCircuitBuilder.build(level, pos);
-            CIRCUITS.put(key, circuit);
+        /*
+         * 既存回路探索
+         */
+        for(NTEnergyCircuit circuit : CIRCUITS){
+            if(circuit.contains(pos)){
+                return circuit;
+            }
         }
-        return CIRCUITS.get(key);
 
+        /*
+         * 新規作成
+         */
+        NTEnergyCircuit circuit = NTEnergyCircuitBuilder.build(level, pos);
+        CIRCUITS.add(circuit);
+        return circuit;
     }
 
-    private static @NotNull String createKey(@NotNull Level level, BlockPos pos){
-        return level.dimension().location() +"_" +pos;
+    public static void tick(){
+        for(NTEnergyCircuit circuit : CIRCUITS){
+            circuit.update();
+        }
     }
 
     public static void clear(){

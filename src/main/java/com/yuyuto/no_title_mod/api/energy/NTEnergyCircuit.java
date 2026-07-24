@@ -1,6 +1,8 @@
 package com.yuyuto.no_title_mod.api.energy;
 
 import com.yuyuto.no_title_mod.NoTitleMod;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
 import java.util.*;
@@ -9,8 +11,14 @@ public class NTEnergyCircuit {
 
     private final Set<BlockEntity> generators = new HashSet<>();
     private final Set<BlockEntity> consumers = new HashSet<>();
+    private final Set<BlockPos> positions = new HashSet<>();
+    private final Level level;
     private double totalGeneration;
     private double totalDemand;
+
+    public NTEnergyCircuit(Level level) {
+        this.level = level;
+    }
 
     /*
      * Node登録
@@ -64,12 +72,14 @@ public class NTEnergyCircuit {
     public void update(){
         calculate();
         distribute();
-
     }
 
     /*
      * Getter
      */
+    public void addPosition(BlockPos pos){
+        positions.add(pos);
+    }
 
     public Set<BlockEntity> getGenerators(){
         return generators;
@@ -77,5 +87,13 @@ public class NTEnergyCircuit {
 
     public Set<BlockEntity> getConsumers(){
         return consumers;
+    }
+
+    public boolean contains(BlockPos pos) {
+        return positions.contains(pos);
+    }
+
+    public Level getLevel() {
+        return level;
     }
 }

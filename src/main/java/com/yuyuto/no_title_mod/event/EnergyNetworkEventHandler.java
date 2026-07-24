@@ -30,11 +30,6 @@ public class EnergyNetworkEventHandler {
         if(event.getLevel().isClientSide()){
             return;
         }
-        BlockEntity be = event.getLevel().getBlockEntity(event.getPos());
-        if(be instanceof INTEnergyGenerator || be instanceof INTEnergyConsumer || be instanceof EnergyCableBlockEntity){
-            NTEnergyCircuitManager.clear();
-        }
+        NTEnergyCircuitManager.clear();
     }
 }
-
-
