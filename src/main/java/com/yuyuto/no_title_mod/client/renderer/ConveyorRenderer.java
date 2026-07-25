@@ -29,12 +29,10 @@ public class ConveyorRenderer implements BlockEntityRenderer<ConveyorBlockEntity
         this.itemRenderer = Minecraft.getInstance().getItemRenderer();
     }
 
-
-
     @Override
     public void render(@NotNull ConveyorBlockEntity blockEntity, float partialTick, @NotNull PoseStack poseStack, @NotNull MultiBufferSource buffer, int packedLight, int packedOverlay) {
 
-        float offset = blockEntity.getItemOffset(partialTick);
+        float offset = blockEntity.getRenderItemOffset(partialTick);
         renderBelt(blockEntity, partialTick, poseStack, buffer, packedLight);
         ItemStack stack = blockEntity.getStack(0);
         if(stack.isEmpty()) {
@@ -74,7 +72,7 @@ public class ConveyorRenderer implements BlockEntityRenderer<ConveyorBlockEntity
         // 元の座標へ戻す
         poseStack.translate(-0.5, 0, -0.5);
         VertexConsumer vertex = buffer.getBuffer(RenderType.entityCutout(BELT_TEXTURE));
-        float offset = entity.getBeltOffset() + entity.getSpeed() * partialTick;
+        float offset = entity.getRenderBeltOffset(partialTick);
         float uvOffset = offset;
         PoseStack.Pose pose = poseStack.last();
         float minX = 2f / 16f;

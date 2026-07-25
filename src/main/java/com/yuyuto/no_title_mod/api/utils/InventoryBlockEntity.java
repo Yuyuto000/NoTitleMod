@@ -53,6 +53,9 @@ public abstract class InventoryBlockEntity extends BlockEntity {
             @Override
             protected void onContentsChanged(int slot) {
                 setChanged();
+                if(level != null && !level.isClientSide){
+                    level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
+                }
             }
         };
     }

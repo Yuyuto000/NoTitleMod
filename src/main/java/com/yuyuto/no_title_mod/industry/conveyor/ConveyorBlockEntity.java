@@ -1,6 +1,5 @@
 package com.yuyuto.no_title_mod.industry.conveyor;
 
-import com.yuyuto.no_title_mod.NoTitleMod;
 import com.yuyuto.no_title_mod.api.energy.INTEnergyConsumer;
 import com.yuyuto.no_title_mod.api.utils.InventoryBlockEntity;
 import com.yuyuto.no_title_mod.api.utils.InventoryTransferHelper;
@@ -8,9 +7,11 @@ import com.yuyuto.no_title_mod.registry.ModBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
@@ -19,6 +20,7 @@ import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.IItemHandler;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -26,10 +28,9 @@ public class ConveyorBlockEntity extends InventoryBlockEntity implements INTEner
 
     private static final float DEFAULT_SPEED = 0.05f;
     private float speed = DEFAULT_SPEED;
-    private int transferCooldown;
     private float beltOffset = 0.0f;
-    private float itemOffset = 0.0f;
     private boolean powered;
+    private long itemStartTick;
     private ConveyorShape shape = ConveyorShape.SINGLE;
 
     public ConveyorBlockEntity(BlockPos pos, BlockState state) {
@@ -38,14 +39,21 @@ public class ConveyorBlockEntity extends InventoryBlockEntity implements INTEner
 
     @Contract(pure = true)
     public static void tick(@NotNull Level level, BlockPos pos, BlockState state, @NotNull ConveyorBlockEntity entity) {
-        if (level.isClientSide) {
+
+        if(level.isClientSide){
             entity.tickAnimation();
             return;
         }
-        if (entity.powered) {
-            entity.updateShape();
-            entity.moveItems();
-        }
+        if(!entity.powered)
+            return;
+        entity.tickServer();
+    }
+
+    private void tickServer() {
+
+        if(!powered) return;
+        updateShape();
+        moveItems();
     }
 
     private void updateShape() {
@@ -66,23 +74,21 @@ public class ConveyorBlockEntity extends InventoryBlockEntity implements INTEner
 
     private void tickAnimation(){
 
+        if(!powered)
+            return;
         beltOffset += speed;
-        if(beltOffset >= 1.0f)
-            beltOffset -= 1.0f;
-        itemOffset += speed;
-        if(itemOffset >= 1.0f)
-            itemOffset -= 1.0f;
+        if(beltOffset >= 1F)
+            beltOffset -= 1F;
     }
 
     private void moveItems(){
 
-        if(transferCooldown > 0){
-            transferCooldown--;
-            return;
-        }
         pickupItemEntity();
+
+        if(!hasItem()) return;
+        if(!hasArrived()) return;
+
         transferToFront();
-        transferCooldown = 5;
     }
 
     /**
@@ -113,6 +119,7 @@ public class ConveyorBlockEntity extends InventoryBlockEntity implements INTEner
         insert.setCount(1);
         ItemStack remain = InventoryTransferHelper.insertItem(getInventory(), insert);
         if(remain.isEmpty()){
+            itemStartTick = level.getGameTime();
             source.shrink(1);
             if(source.isEmpty()){
                 entity.discard();
@@ -127,12 +134,39 @@ public class ConveyorBlockEntity extends InventoryBlockEntity implements INTEner
         if (getStack(0).isEmpty())
             return;
         BlockEntity blockEntity = level.getBlockEntity(worldPosition.relative(getDirection()));
-        if (blockEntity == null)
+        if(blockEntity == null){
+            dropItem();
             return;
+        }
         LazyOptional<IItemHandler> capability = blockEntity.getCapability(ForgeCapabilities.ITEM_HANDLER, getDirection().getOpposite());
         if (!capability.isPresent())
             return;
-        capability.ifPresent(handler -> InventoryTransferHelper.transfer(getInventory(), handler, 1));
+        capability.ifPresent(handler -> {
+            boolean moved = InventoryTransferHelper.transfer(getInventory(), handler, 1);
+            if(moved){
+                assert level != null;
+                itemStartTick = level.getGameTime();
+                if(blockEntity instanceof ConveyorBlockEntity conveyor){
+                    conveyor.onItemReceived();
+                }
+            }
+        });
+    }
+    public void onItemReceived(){
+        if(level == null)
+            return;
+        itemStartTick = level.getGameTime();
+    }
+
+    private void dropItem() {
+
+        if(level == null) return;
+        ItemStack drop = getInventory().extractItem(0, 1, false);
+        if(drop.isEmpty()) return;
+        itemStartTick = level.getGameTime();
+        ItemEntity entity = new ItemEntity(level, worldPosition.getX() + 0.5 + getDirection().getStepX() * 0.7, worldPosition.getY() + 0.8, worldPosition.getZ() + 0.5 + getDirection().getStepZ() * 0.7, drop);
+        entity.setDeltaMovement(getDirection().getStepX() * 0.08, 0, getDirection().getStepZ() * 0.08);
+        level.addFreshEntity(entity);
     }
 
     public @NotNull Direction getDirection(){
@@ -156,9 +190,38 @@ public class ConveyorBlockEntity extends InventoryBlockEntity implements INTEner
             return false;
         return conveyor.getDirection() == getDirection();
     }
-    public float getBeltOffset() {
-        return beltOffset;
+    @Override
+    public @NotNull CompoundTag getUpdateTag(){
+        CompoundTag tag = new CompoundTag();
+        saveAdditional(tag);
+        return tag;
     }
+    @Override
+    public @Nullable ClientboundBlockEntityDataPacket getUpdatePacket(){
+        return ClientboundBlockEntityDataPacket.create(this);
+    }
+
+    public float getRenderItemOffset(float partialTick){
+
+        if(level == null) return 0F;
+        if(!hasItem()) return 0F;
+        float offset = ((level.getGameTime()-itemStartTick)+partialTick)*speed;
+        return Math.min(offset,1F);
+    }
+    public float getRenderBeltOffset(float partialTick){
+
+        if(level == null)
+            return 0;
+        if(!powered)
+            return beltOffset;
+        return (float)(((level.getGameTime() + partialTick) * speed) % 1.0);
+    }
+
+    private boolean hasArrived(){
+        if(level == null) return false;
+        return (level.getGameTime() - itemStartTick) * speed >= 1F;
+    }
+
     public float getSpeed() {
         return speed;
     }
@@ -176,9 +239,7 @@ public class ConveyorBlockEntity extends InventoryBlockEntity implements INTEner
     public ConveyorShape getShape() {
         return shape;
     }
-    public float getItemOffset(float partialTick){
-        return itemOffset + speed * partialTick;
-    }
+
     public boolean hasItem(){
         return !getStack(0).isEmpty();
     }
@@ -187,19 +248,28 @@ public class ConveyorBlockEntity extends InventoryBlockEntity implements INTEner
     protected void saveAdditional(@NotNull CompoundTag tag){
         super.saveAdditional(tag);
         tag.putFloat("Speed", speed);
+        tag.putBoolean("Powered", powered);
+        tag.putLong("ItemStartTick", itemStartTick);
     }
     @Override
     public void load(@NotNull CompoundTag tag){
         super.load(tag);
         speed = tag.getFloat("Speed");
+        powered = tag.getBoolean("Powered");
+        itemStartTick = tag.getLong("ItemStartTick");
     }
 
     public void setSpeed(float speed) {
         this.speed = speed;
     }
+
     @Override
     public void setPowered(boolean value) {
+        if(powered == value) return;
         powered = value;
-        // setChanged();
+        setChanged();
+        if(level != null && !level.isClientSide){
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Block.UPDATE_ALL);
+        }
     }
 }
