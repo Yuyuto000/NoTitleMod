@@ -26,6 +26,7 @@ public class ConveyorBlockEntity extends InventoryBlockEntity implements INTEner
 
     private static final float DEFAULT_SPEED = 0.05f;
     private float speed = DEFAULT_SPEED;
+    private int transferCooldown;
     private float beltOffset = 0.0f;
     private float itemOffset = 0.0f;
     private boolean powered;
@@ -65,7 +66,6 @@ public class ConveyorBlockEntity extends InventoryBlockEntity implements INTEner
 
     private void tickAnimation(){
 
-        NoTitleMod.LOGGER.info("Animation offset={}", itemOffset);
         beltOffset += speed;
         if(beltOffset >= 1.0f)
             beltOffset -= 1.0f;
@@ -74,10 +74,15 @@ public class ConveyorBlockEntity extends InventoryBlockEntity implements INTEner
             itemOffset -= 1.0f;
     }
 
-    private void moveItems() {
+    private void moveItems(){
 
+        if(transferCooldown > 0){
+            transferCooldown--;
+            return;
+        }
         pickupItemEntity();
         transferToFront();
+        transferCooldown = 5;
     }
 
     /**
@@ -93,16 +98,26 @@ public class ConveyorBlockEntity extends InventoryBlockEntity implements INTEner
 
         if(level == null)
             return;
+
         if(!getStack(0).isEmpty())
             return;
-        AABB area = new AABB(worldPosition).move(0,0.8,0).inflate(0.25,0.1,0.25);
+        AABB area = new AABB(worldPosition)
+                .move(0,0.8,0)
+                .inflate(0.25,0.1,0.25);
         List<ItemEntity> items = level.getEntitiesOfClass(ItemEntity.class, area);
-        if(items.isEmpty()) return;
+        if(items.isEmpty())
+            return;
         ItemEntity entity = items.get(0);
-        ItemStack remain = InventoryTransferHelper.insertItem(getInventory(), entity.getItem());
-        entity.setItem(remain);
-        if(remain.isEmpty())
-            entity.discard();
+        ItemStack source = entity.getItem();
+        ItemStack insert = source.copy();
+        insert.setCount(1);
+        ItemStack remain = InventoryTransferHelper.insertItem(getInventory(), insert);
+        if(remain.isEmpty()){
+            source.shrink(1);
+            if(source.isEmpty()){
+                entity.discard();
+            }
+        }
     }
 
     private void transferToFront() {
@@ -123,19 +138,23 @@ public class ConveyorBlockEntity extends InventoryBlockEntity implements INTEner
     public @NotNull Direction getDirection(){
         return getBlockState().getValue(ConveyorBlock.FACING);
     }
-    public boolean hasFrontConveyor() {
+    public boolean hasFrontConveyor(){
 
         if(level == null)
             return false;
-        BlockPos front = worldPosition.relative(getDirection());
-        return level.getBlockEntity(front) instanceof ConveyorBlockEntity;
+        BlockEntity entity = level.getBlockEntity(worldPosition.relative(getDirection()));
+        if(!(entity instanceof ConveyorBlockEntity conveyor))
+            return false;
+        return conveyor.getDirection() == getDirection();
     }
     public boolean hasBackConveyor() {
 
         if(level == null)
             return false;
-        BlockPos back = worldPosition.relative(getDirection().getOpposite());
-        return level.getBlockEntity(back) instanceof ConveyorBlockEntity;
+        BlockEntity entity = level.getBlockEntity(worldPosition.relative(getDirection().getOpposite()));
+        if(!(entity instanceof ConveyorBlockEntity conveyor))
+            return false;
+        return conveyor.getDirection() == getDirection();
     }
     public float getBeltOffset() {
         return beltOffset;
@@ -159,6 +178,9 @@ public class ConveyorBlockEntity extends InventoryBlockEntity implements INTEner
     }
     public float getItemOffset(float partialTick){
         return itemOffset + speed * partialTick;
+    }
+    public boolean hasItem(){
+        return !getStack(0).isEmpty();
     }
 
     @Override
