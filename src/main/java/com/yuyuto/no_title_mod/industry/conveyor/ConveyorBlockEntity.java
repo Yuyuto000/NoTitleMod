@@ -1,6 +1,7 @@
 package com.yuyuto.no_title_mod.industry.conveyor;
 
 import com.yuyuto.no_title_mod.api.energy.INTEnergyConsumer;
+import com.yuyuto.no_title_mod.api.energy.NTEnergyNodeType;
 import com.yuyuto.no_title_mod.api.utils.InventoryBlockEntity;
 import com.yuyuto.no_title_mod.api.utils.InventoryTransferHelper;
 import com.yuyuto.no_title_mod.registry.ModBlockEntities;
@@ -253,5 +254,10 @@ public class ConveyorBlockEntity extends InventoryBlockEntity implements INTEner
         if(level != null && !level.isClientSide){
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Block.UPDATE_ALL);
         }
+    }
+
+    @Override
+    public NTEnergyNodeType getNodeType() {
+        return NTEnergyNodeType.CONSUMER;
     }
 }

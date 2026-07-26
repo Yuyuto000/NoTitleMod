@@ -1,95 +1,124 @@
 package com.yuyuto.no_title_mod.api.energy;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-
 import java.util.*;
 
 public class NTEnergyCircuit {
 
-    private final Set<BlockEntity> generators = new HashSet<>();
-    private final Set<BlockEntity> consumers = new HashSet<>();
-    private final Set<BlockPos> positions = new HashSet<>();
-    private final Level level;
+    /*
+     * 所属Dimension
+     */
+    private final ResourceKey<Level> dimension;
+    /*
+     * 回路参加Node
+     *
+     * Key:
+     * 位置
+     *
+     * Value:
+     * Node種類
+     */
+    private final Map<BlockPos, NTEnergyNodeType> nodes = new HashMap<>();
+    /*
+     * 計算結果
+     */
     private double totalGeneration;
     private double totalDemand;
+    private boolean powered;
 
-    public NTEnergyCircuit(Level level) {
-        this.level = level;
+    public NTEnergyCircuit(ResourceKey<Level> dimension) {
+        this.dimension = dimension;
     }
 
     /*
+     * =========================
      * Node登録
+     * =========================
      */
-    public void addGenerator(BlockEntity generator){
-        generators.add(generator);
-    }
-    public void addConsumer(BlockEntity consumer){
-        consumers.add(consumer);
+    public void addNode(BlockPos pos, NTEnergyNodeType type){
+        nodes.put(pos,type);
     }
 
     /*
+     * =========================
      * Circuit計算
+     * =========================
      */
-    public void calculate(){
-
+    public void calculate(Level level){
         totalGeneration = 0;
         totalDemand = 0;
-        for(BlockEntity generator : generators){
-            if(generator instanceof INTEnergyGenerator energyGenerator){
-                totalGeneration += energyGenerator.getGeneratedEnergy();
-            }
-        }
-
-        for(BlockEntity consumer : consumers){
-            if(consumer instanceof INTEnergyConsumer energyConsumer){
-                totalDemand += energyConsumer.getEnergyDemand();
+        for(Map.Entry<BlockPos,NTEnergyNodeType> entry : nodes.entrySet()){
+            BlockPos pos = entry.getKey();
+            NTEnergyNodeType type = entry.getValue();
+            BlockEntity be = level.getBlockEntity(pos);
+            if(be == null) continue;
+            switch(type){
+                case GENERATOR -> {
+                    if(be instanceof INTEnergyGenerator generator){
+                        totalGeneration += generator.getGeneratedEnergy();
+                    }
+                }
+                case CONSUMER -> {
+                    if(be instanceof INTEnergyConsumer consumer){
+                        if(consumer.canWork()){
+                            totalDemand += consumer.getEnergyDemand();
+                        }
+                    }
+                }
+                case CABLE -> {
+                    // 計算不要
+                }
             }
         }
     }
 
     /*
-     * 電力配分
+     * =========================
+     * Power配布
+     * =========================
      */
-    public void distribute(){
 
-        if(consumers.isEmpty()){
-            return;
-        }
-        boolean enough = totalGeneration >= totalDemand;
-        for(BlockEntity consumer : consumers){
-            if(consumer instanceof INTEnergyConsumer energyConsumer){
-                energyConsumer.setPowered(enough);
+    public void distribute(Level level){
+        powered = totalGeneration >= totalDemand;
+        for(Map.Entry<BlockPos,NTEnergyNodeType> entry : nodes.entrySet()){
+            if(entry.getValue() != NTEnergyNodeType.CONSUMER)
+                continue;
+            BlockEntity be = level.getBlockEntity(entry.getKey());
+            if(be instanceof INTEnergyConsumer consumer){
+                consumer.setPowered(powered);
             }
         }
     }
 
-    public void update(){
-        calculate();
-        distribute();
+    public void update(Level level){
+        calculate(level);
+        distribute(level);
     }
 
     /*
+     * =========================
      * Getter
+     * =========================
      */
-    public void addPosition(BlockPos pos){
-        positions.add(pos);
+    public boolean contains(BlockPos pos){
+        return nodes.containsKey(pos);
     }
-
-    public Set<BlockEntity> getGenerators(){
-        return generators;
+    public ResourceKey<Level> getDimension(){
+        return dimension;
     }
-
-    public Set<BlockEntity> getConsumers(){
-        return consumers;
+    public Map<BlockPos,NTEnergyNodeType> getNodes(){
+        return nodes;
     }
-
-    public boolean contains(BlockPos pos) {
-        return positions.contains(pos);
+    public double getTotalGeneration(){
+        return totalGeneration;
     }
-
-    public Level getLevel() {
-        return level;
+    public double getTotalDemand(){
+        return totalDemand;
+    }
+    public boolean isPowered(){
+        return powered;
     }
 }

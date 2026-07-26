@@ -42,8 +42,6 @@ public class EnergyGeneratorBlockEntity extends BlockEntity implements INTEnergy
     /*
      * 機械入力
      */
-    @SuppressWarnings("FieldCanBeLocal")
-    private NTEnergyCircuit circuit;
     private double mechanicalPower = 0;
     private final LazyOptional<IEnergyStorage> energyHandler = LazyOptional.of(() -> energyStorage);
     /*
@@ -89,7 +87,6 @@ public class EnergyGeneratorBlockEntity extends BlockEntity implements INTEnergy
          * 動力探索
          */
         entity.findMechanicalPower(level,pos);
-        entity.updateCircuitInfo();
 
         /*
          * 動力なし
@@ -103,7 +100,6 @@ public class EnergyGeneratorBlockEntity extends BlockEntity implements INTEnergy
          * 発電処理
          */
         entity.generateEnergy();
-        entity.updateCircuit();
 
         /*
          * 演出
@@ -145,7 +141,6 @@ public class EnergyGeneratorBlockEntity extends BlockEntity implements INTEnergy
      * =========================
      */
     private void generateEnergy(){
-
         double baseEnergy = mechanicalPower * 0.8;
         /*
          * NTEnergyAPIによる変動
@@ -159,25 +154,6 @@ public class EnergyGeneratorBlockEntity extends BlockEntity implements INTEnergy
         }
     }
 
-    private void updateCircuit(){
-
-        if(level == null){
-            return;
-        }
-        circuit = NTEnergyCircuitManager.getCircuit(level, worldPosition);
-        circuit.update();
-    }
-
-    private void updateCircuitInfo(){
-
-        if(level == null){
-            return;
-        }
-        circuit = NTEnergyCircuitManager.getCircuit(level, worldPosition);
-        circuitNodeCount = circuit.getGenerators().size() + circuit.getConsumers().size();
-        circuitGeneratorCount = circuit.getGenerators().size();
-        circuitConsumerCount = circuit.getConsumers().size();
-    }
     /*
      * =========================
      * FE Access
@@ -231,5 +207,10 @@ public class EnergyGeneratorBlockEntity extends BlockEntity implements INTEnergy
     @Override
     public void markAsDirty(){
 
+    }
+
+    @Override
+    public NTEnergyNodeType getNodeType() {
+        return NTEnergyNodeType.GENERATOR;
     }
 }

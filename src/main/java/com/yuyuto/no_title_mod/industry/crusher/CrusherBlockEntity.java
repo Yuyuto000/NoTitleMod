@@ -1,6 +1,7 @@
 package com.yuyuto.no_title_mod.industry.crusher;
 
 import com.yuyuto.no_title_mod.api.energy.INTEnergyConsumer;
+import com.yuyuto.no_title_mod.api.energy.NTEnergyNodeType;
 import com.yuyuto.no_title_mod.registry.ModBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -156,6 +157,11 @@ public class CrusherBlockEntity extends BlockEntity implements INTEnergyConsumer
             server.sendParticles(ParticleTypes.CRIT, worldPosition.getX()+0.5, worldPosition.getY()+1, worldPosition.getZ()+0.5, 10, 0.2, 0.2, 0.2, 0.1);
         }
         level.playSound(null, worldPosition, SoundEvents.ANVIL_HIT, SoundSource.BLOCKS, 0.5F, 1.0F);
+    }
+
+    @Override
+    public NTEnergyNodeType getNodeType() {
+        return NTEnergyNodeType.CONSUMER;
     }
 
 }

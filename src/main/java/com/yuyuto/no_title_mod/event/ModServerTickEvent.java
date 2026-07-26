@@ -13,11 +13,10 @@ public class ModServerTickEvent {
     @SubscribeEvent
     public static void onServerTick(TickEvent.@NotNull ServerTickEvent event){
 
-        if(event.phase != TickEvent.Phase.END)
-            return;
-        NTEnergyCircuitManager.tick();
+        if(event.phase != TickEvent.Phase.END) return;
         MinecraftServer server = event.getServer();
-        for(ServerLevel level : server.getAllLevels()) {
+        for(ServerLevel level : server.getAllLevels()){
+            NTEnergyCircuitManager.tick(level);
             ConveyorTransferQueue.commit(level);
         }
     }
