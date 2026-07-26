@@ -15,8 +15,7 @@ public class NTEnergyCircuitManager {
     private static final Map<ResourceKey<Level>, List<NTEnergyCircuit>> CIRCUITS = new HashMap<>();
     public static @NotNull NTEnergyCircuit getCircuit(@NotNull Level level, BlockPos pos){
 
-        List<NTEnergyCircuit> circuits =
-                CIRCUITS.computeIfAbsent(level.dimension(), key -> new ArrayList<>());
+        List<NTEnergyCircuit> circuits = CIRCUITS.computeIfAbsent(level.dimension(), key -> new ArrayList<>());
         for(NTEnergyCircuit circuit : circuits){
             if(circuit.contains(pos)){
                 return circuit;

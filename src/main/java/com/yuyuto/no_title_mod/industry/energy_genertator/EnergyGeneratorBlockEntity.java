@@ -4,7 +4,6 @@ import com.lowdragmc.lowdraglib.gui.modular.IUIHolder;
 import com.lowdragmc.lowdraglib.gui.modular.ModularUI;
 import com.lowdragmc.lowdraglib.gui.widget.*;
 import com.lowdragmc.lowdraglib.gui.texture.ResourceTexture;
-import com.yuyuto.no_title_mod.NoTitleMod;
 import com.yuyuto.no_title_mod.api.energy.*;
 import com.yuyuto.no_title_mod.gui.NTGuiTextures;
 import com.yuyuto.no_title_mod.registry.ModBlockEntities;

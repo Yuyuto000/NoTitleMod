@@ -28,9 +28,7 @@ public class NTEnergyAPI {
 
         // -1.5 <= x <= 1.5 の範囲に制限
         double wave = Math.sin(x);
-
         wave = Math.max(-1.5, Math.min(1.5, wave));
-
         return baseEnergy + (baseEnergy * variation * wave);
     }
 
@@ -44,10 +42,7 @@ public class NTEnergyAPI {
      * @param efficiencyLoss 損失率(0.15～0.20)
      * @return 必要FE
      */
-    public static double calculateRequiredFE(
-            double negativeEnergy,
-            double efficiencyLoss
-    ) {
+    public static double calculateRequiredFE(double negativeEnergy, double efficiencyLoss) {
         return negativeEnergy * (1.0 + efficiencyLoss);
     }
 
@@ -59,10 +54,7 @@ public class NTEnergyAPI {
      * @param negativeEnergy 機械負荷
      * @return 残存エネルギー
      */
-    public static double calculateBalance(
-            double positiveEnergy,
-            double negativeEnergy
-    ) {
+    public static double calculateBalance(double positiveEnergy, double negativeEnergy) {
         return positiveEnergy - negativeEnergy;
     }
 
@@ -70,9 +62,7 @@ public class NTEnergyAPI {
     /**
      * 小数第5位まで丸める
      */
-    public static double normalizeEnergy(
-            double energy
-    ) {
+    public static double normalizeEnergy(double energy) {
         return Math.round(energy * 100000.0) / 100000.0;
     }
 
@@ -80,10 +70,7 @@ public class NTEnergyAPI {
     /**
      * エネルギーが足りているか確認
      */
-    public static boolean canOperate(
-            double positiveEnergy,
-            double negativeEnergy
-    ) {
+    public static boolean canOperate(double positiveEnergy, double negativeEnergy) {
         return positiveEnergy >= negativeEnergy;
     }
 }

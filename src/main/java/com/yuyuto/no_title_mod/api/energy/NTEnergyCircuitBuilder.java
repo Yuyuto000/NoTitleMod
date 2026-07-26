@@ -54,8 +54,6 @@ public class NTEnergyCircuitBuilder {
             if(be instanceof INTEnergyConsumer){
                 circuit.addConsumer(be);
                 addNeighbor(queue,pos);
-                //noinspection UnnecessaryContinue
-                continue;
             }
         }
         return circuit;

@@ -8,6 +8,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -15,9 +16,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.IItemHandler;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -84,11 +82,19 @@ public class ConveyorBlockEntity extends InventoryBlockEntity implements INTEner
     private void moveItems(){
 
         pickupItemEntity();
+        if(!hasItem())
+            return;
+        if(!hasArrived())
+            return;
+        stageTransfer();
+    }
 
-        if(!hasItem()) return;
-        if(!hasArrived()) return;
+    private void stageTransfer(){
 
-        transferToFront();
+        if(level == null)
+            return;
+        BlockPos target = worldPosition.relative(getDirection());
+        ConveyorTransferQueue.stage((ServerLevel) level, worldPosition, target, getStack(0), level.getGameTime()+1);
     }
 
     /**
@@ -127,38 +133,14 @@ public class ConveyorBlockEntity extends InventoryBlockEntity implements INTEner
         }
     }
 
-    private void transferToFront() {
+    public void removeItem(){
 
-        if (level == null)
-            return;
-        if (getStack(0).isEmpty())
-            return;
-        BlockEntity blockEntity = level.getBlockEntity(worldPosition.relative(getDirection()));
-        if(blockEntity == null){
-            dropItem();
-            return;
-        }
-        LazyOptional<IItemHandler> capability = blockEntity.getCapability(ForgeCapabilities.ITEM_HANDLER, getDirection().getOpposite());
-        if (!capability.isPresent())
-            return;
-        capability.ifPresent(handler -> {
-            boolean moved = InventoryTransferHelper.transfer(getInventory(), handler, 1);
-            if(moved){
-                assert level != null;
-                itemStartTick = level.getGameTime();
-                if(blockEntity instanceof ConveyorBlockEntity conveyor){
-                    conveyor.onItemReceived();
-                }
-            }
-        });
-    }
-    public void onItemReceived(){
-        if(level == null)
-            return;
+        getInventory().extractItem(0, 1, false);
         itemStartTick = level.getGameTime();
+        setChanged();
     }
 
-    private void dropItem() {
+    public void dropItem() {
 
         if(level == null) return;
         ItemStack drop = getInventory().extractItem(0, 1, false);
