@@ -83,7 +83,7 @@ public class ConveyorBlockEntity extends InventoryBlockEntity implements INTEner
     private void moveItems(){
 
         pickupItemEntity();
-        if(!hasItem())
+        if(hasItem())
             return;
         if(!hasArrived())
             return;
@@ -92,10 +92,10 @@ public class ConveyorBlockEntity extends InventoryBlockEntity implements INTEner
 
     private void stageTransfer(){
 
-        if(level == null)
+        if(!(level instanceof ServerLevel serverLevel))
             return;
         BlockPos target = worldPosition.relative(getDirection());
-        ConveyorTransferQueue.stage((ServerLevel) level, worldPosition, target, getStack(0), level.getGameTime()+1);
+        ConveyorTransferQueue.stage(serverLevel, worldPosition, target, getDirection(), getStack(0), level.getGameTime()+1);
     }
 
     /**
@@ -137,7 +137,9 @@ public class ConveyorBlockEntity extends InventoryBlockEntity implements INTEner
     public void removeItem(){
 
         getInventory().extractItem(0, 1, false);
-        itemStartTick = level.getGameTime();
+        if (level != null) {
+            itemStartTick = level.getGameTime();
+        }
         setChanged();
     }
 
@@ -187,7 +189,7 @@ public class ConveyorBlockEntity extends InventoryBlockEntity implements INTEner
     public float getRenderItemOffset(float partialTick){
 
         if(level == null) return 0F;
-        if(!hasItem()) return 0F;
+        if(hasItem()) return 0F;
         float offset = ((level.getGameTime()-itemStartTick)+partialTick)*speed;
         return Math.min(offset,1F);
     }
@@ -224,7 +226,7 @@ public class ConveyorBlockEntity extends InventoryBlockEntity implements INTEner
     }
 
     public boolean hasItem(){
-        return !getStack(0).isEmpty();
+        return getStack(0).isEmpty();
     }
 
     @Override

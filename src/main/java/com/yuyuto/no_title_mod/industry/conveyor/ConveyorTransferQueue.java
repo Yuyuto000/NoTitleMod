@@ -1,6 +1,7 @@
 package com.yuyuto.no_title_mod.industry.conveyor;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -14,8 +15,8 @@ public class ConveyorTransferQueue {
     private static final List<Request> REQUESTS = new ArrayList<>();
 
 
-    public static void stage(ServerLevel level, BlockPos from, BlockPos target, @NotNull ItemStack stack, long executeTick){
-        REQUESTS.add(new Request(level, from, target, stack.copy(), executeTick));
+    public static void stage(ServerLevel level, BlockPos from, BlockPos target,Direction direction, @NotNull ItemStack stack, long executeTick){
+        REQUESTS.add(new Request(level, from, target,direction, stack.copy(), executeTick));
     }
 
     public static void commit(@NotNull ServerLevel level){
@@ -33,5 +34,12 @@ public class ConveyorTransferQueue {
         }
     }
 
-    public record Request(ServerLevel level, BlockPos from, BlockPos target, ItemStack stack, long executeTick){}
+    public record Request(
+            ServerLevel level,
+            BlockPos from,
+            BlockPos target,
+            Direction direction,
+            ItemStack stack,
+            long executeTick
+    ){}
 }

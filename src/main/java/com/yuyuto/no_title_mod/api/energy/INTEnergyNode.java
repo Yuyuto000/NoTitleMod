@@ -1,5 +1,0 @@
-package com.yuyuto.no_title_mod.api.energy;
-
-public interface INTEnergyNode {
-    NTEnergyNodeType getNodeType();
-}
