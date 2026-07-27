@@ -16,57 +16,48 @@ Consumer
 ### Node
 -> GeneratorとConsumerを使用するための必要な数字及び情報を記述する。Recordクラス。\
 **フィールド内容**
-- Resistance(抵抗)
-- Voltage(電圧)
-- ID
+- NodeType
+- NodePacket
+- Energy
 
 **このクラスを使用するクラス**
 - EnergyGeneratorBlockEntity
+- ConsumerのBlockEntity
+---
+### NodePacket
+-> Node間通信に必須の情報を投入するRecordクラス。考え方は通信システムのHTTPと同じ\
+**フィールド内容**
+- Energy
+- BlockPos(住所、ドメイン)
+- Tick(送信GameTime)
+
+**このクラスを使用するクラス**
+- EnergyGeneratorBlockEntity
+- EnergyCableBlockEntity
 - ConsumerのBlockEntity
 ---
 ### NodeType
 -> 電気回路を使用するブロックの種類を区分する列挙型クラス。\
 **列挙内容**
 - GENERATOR
-- EDGER
+- CABLE
 - CONSUMER
 
 **このクラスを使用するクラス**
 - EnergyGeneratorBlockEntity
+- EnergyCableBlockEntity
 - ConsumerのBlockEntityクラス
 ---
-### INTEnergyGenerator
--> Generatorであることを明示するクラス。インターフェース。\
+### INTEnergyNode
+-> EnergyNode保持BlockEntityであることを明示するクラス。インターフェース。\
 **要求メソッド内容**
-- getOutputVoltage
+- getPacket
+- getPos
 
 **このクラスを使用するクラス**
 - EnergyGeneratorBlockEntity
----
-### INTEnergyConsumer
--> 電気使用マシン共通のメソッドを記述。インタフェース。\
-**要求メソッド内容**
-- getResistance\
-
-**このクラスを使用するクラス**
+- EnergyCableBlockEntity
 - ConsumerのBlockEntityクラス
----
-### INTEnergyCable　
--> ケーブルの共通要求メソッド。
-**要求メソッド内容**
-- getCurrentEdge\
-
-**このクラスを使用するクラス**
-- EnergyCableBlockEntityクラス
----
-### Edge
--> ケーブルのRecordクラス。基本的にNodeやEdgeなどの接続間の移動処理は基本的にTransferが行うこととなる。\
-**フィールド内容**
-- Set<BlockPos> next // 前後上下左右のうちNodeもしくはEdgeがいるPosを記入する
-- transferのinstance // Nodeの受け渡し時に使用\
-
-**このクラスを使用するクラス**
-- EnergyCableBlockEntityクラス
 ---
 ### Calculation
 -> 電気計算のメソッドを記述したクラス。ノーマルクラス。
@@ -89,6 +80,7 @@ Consumer
 
 **このクラスを使用するクラス**
 - EnergyGeneratorBlockEntity
+- EnergyCableBlockEntity
 - ConsumerのBlockEntityクラス
 
 ---
@@ -103,34 +95,32 @@ if(isSourcePowered)
 ↓
 自Node更新
 ↓
-Transfer.transfer()
+送信パケット生成
+setMyPacket()
 ↓
-Generator.voltage = NodeType.CONSUMER.voltage <- consumer.voltage
-↓
-Consumer1.tick()へ
+Transfer.transfer(pos, packet)
+Consumer.tick()へ
 ```
-※Generator->Consumerの場合の通常フローはこうだが、Consumer -> Consumerのフローはこうなる。
 ```md
-Consumer1.tick()
+Consumer.tick()
+↓
+getPacket()
 ↓
 ConsumerのNode更新
 ↓
 if(isPowered())
 ↓
 仕事開始
-↓(同時並列実行)
-Transfer.transfer()
 ↓
-consumer1.voltage == consumer2.voltage
+setPacket()
 ↓
-(Consumer2.tick()へ続く)
-
+Transfer.transfer(pos, packet)
 ```
 ## Block設置
 ```md
 onBlockPlace()
 ↓
-Node生成 or Edge生成
+Node生成
 ↓
 接続更新処理(Edgeのみ)
 ```
@@ -138,15 +128,15 @@ Node生成 or Edge生成
 ```md
 BlockBreak
 ↓
-Node削除 or Edge削除
+Node削除
 ↓
 接続更新処理(Edgeのみ)
 ```
 ## Transfer.transfer()
 ```md
-transfer(Node.voltage voltage)
+transfer(BlockPos pos, Set<BlockPos> visited, EnergyPacket packet)
 ↓
-BFS
+6方向見る
 ↓
 コピー
 ```

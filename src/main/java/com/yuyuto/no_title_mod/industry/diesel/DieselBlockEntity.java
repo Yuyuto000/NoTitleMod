@@ -74,7 +74,7 @@ public class DieselBlockEntity extends BlockEntity implements INTMechanicalPower
     @SuppressWarnings("unused")
     public static void tick(Level level, BlockPos pos, BlockState state, @NotNull DieselBlockEntity entity) {
         /*
-          ここではディーゼルの回転量を指数関数的に増減させるリアルな動きを趣味レーションしている。
+          ここではディーゼルの回転量を指数関数的に増減させるリアルな動きをシュミレーションしている。
           実際の数値計算
           例えば:
           > rpm = 0

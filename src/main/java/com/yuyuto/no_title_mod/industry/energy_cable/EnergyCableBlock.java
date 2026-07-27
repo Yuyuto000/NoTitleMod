@@ -1,7 +1,7 @@
 package com.yuyuto.no_title_mod.industry.energy_cable;
 
-import com.yuyuto.no_title_mod.api.energy.INTEnergyConsumer;
-import com.yuyuto.no_title_mod.api.energy.INTEnergyGenerator;
+import com.yuyuto.no_title_mod.api.energy.INTEnergyNode;
+import com.yuyuto.no_title_mod.registry.ModBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -12,6 +12,8 @@ import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -52,28 +54,23 @@ public class EnergyCableBlock extends BaseEntityBlock {
     public static final BooleanProperty DOWN  = BlockStateProperties.DOWN;
 
     @Override
+    public <T extends BlockEntity>BlockEntityTicker<T> getTicker(@NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> type){
+        return createTickerHelper(type, ModBlockEntities.ENERGY_CABLE.get(), (level1, pos, state1, entity) -> {
+            if (!level1.isClientSide){
+                EnergyCableBlockEntity.tick(level1, pos, state1, entity);
+            }
+        });
+    }
+
+    @Override
     protected void createBlockStateDefinition(StateDefinition.@NotNull Builder<Block, BlockState> builder) {
         builder.add(NORTH, SOUTH, EAST, WEST, UP, DOWN);
     }
 
     private boolean canConnectEnergy(@NotNull LevelAccessor level, BlockPos pos){
 
-        BlockState state = level.getBlockState(pos);
-
-        /*
-         * Cable
-         */
-        if(state.getBlock() instanceof EnergyCableBlock){
-            return true;
-        }
-        /*
-         * Energy対応Block
-         */
         BlockEntity blockEntity = level.getBlockEntity(pos);
-        if(blockEntity instanceof INTEnergyGenerator){
-            return true;
-        }
-        return blockEntity instanceof INTEnergyConsumer;
+        return blockEntity instanceof INTEnergyNode;
     }
 
     @Override

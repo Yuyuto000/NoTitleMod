@@ -1,7 +1,9 @@
 package com.yuyuto.no_title_mod.industry.conveyor;
 
-import com.yuyuto.no_title_mod.api.energy.INTEnergyConsumer;
+import com.yuyuto.no_title_mod.NoTitleMod;
+import com.yuyuto.no_title_mod.api.energy.INTEnergyNode;
 import com.yuyuto.no_title_mod.api.energy.NTEnergyNodeType;
+import com.yuyuto.no_title_mod.api.energy.NTEnergyPacket;
 import com.yuyuto.no_title_mod.api.utils.InventoryBlockEntity;
 import com.yuyuto.no_title_mod.api.utils.InventoryTransferHelper;
 import com.yuyuto.no_title_mod.registry.ModBlockEntities;
@@ -13,7 +15,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
@@ -23,13 +24,17 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class ConveyorBlockEntity extends InventoryBlockEntity implements INTEnergyConsumer {
+public class ConveyorBlockEntity extends InventoryBlockEntity implements INTEnergyNode {
 
     private static final float DEFAULT_SPEED = 0.05f;
     private float speed = DEFAULT_SPEED;
     private float beltOffset = 0.0f;
-    private boolean powered;
+    private static final double REQUIRED_ENERGY = 200;
+    private static final double ENERGY_USAGE = 1;
+    private NTEnergyPacket packet;
+    private double energyBuffer;
     private long itemStartTick;
+    private long lastReceiveTick;
     private ConveyorShape shape = ConveyorShape.SINGLE;
 
     public ConveyorBlockEntity(BlockPos pos, BlockState state) {
@@ -40,17 +45,22 @@ public class ConveyorBlockEntity extends InventoryBlockEntity implements INTEner
     public static void tick(@NotNull Level level, BlockPos pos, BlockState state, @NotNull ConveyorBlockEntity entity) {
 
         if(level.isClientSide){
+            NoTitleMod.LOGGER.info("[Client] Monitoring isPowered = {}", entity.isPowered());
             entity.tickAnimation();
             return;
         }
-        if(!entity.powered)
-            return;
+        NoTitleMod.LOGGER.info("[Server Conveyor] server phase, now -HasEnergy- executing");
+        if(!entity.hasEnergy()) return;
+        NoTitleMod.LOGGER.info("[Server Conveyor] now -entity.energyBuffer <= REQUIRED_ENERGY- executing");
+        if(entity.energyBuffer <= REQUIRED_ENERGY) return;
+        NoTitleMod.LOGGER.info("[Server Conveyor] All Clear, Server Process executing now");
+        entity.packet.consume(ENERGY_USAGE);
         entity.tickServer();
+        entity.energyBuffer = 0;
     }
 
     private void tickServer() {
-
-        if(!powered) return;
+        if (!isPowered()) return;
         updateShape();
         moveItems();
     }
@@ -73,8 +83,7 @@ public class ConveyorBlockEntity extends InventoryBlockEntity implements INTEner
 
     private void tickAnimation(){
 
-        if(!powered)
-            return;
+        if(!isPowered()) return;
         beltOffset += speed;
         if(beltOffset >= 1F)
             beltOffset -= 1F;
@@ -83,10 +92,8 @@ public class ConveyorBlockEntity extends InventoryBlockEntity implements INTEner
     private void moveItems(){
 
         pickupItemEntity();
-        if(hasItem())
-            return;
-        if(!hasArrived())
-            return;
+        if(hasItem()) return;
+        if(!hasArrived()) return;
         stageTransfer();
     }
 
@@ -98,28 +105,15 @@ public class ConveyorBlockEntity extends InventoryBlockEntity implements INTEner
         ConveyorTransferQueue.stage(serverLevel, worldPosition, target, getDirection(), getStack(0), level.getGameTime()+1);
     }
 
-    /**
-     * コンベア上のItemEntityを吸収する。
-     *
-     * <p>
-     * ベルト内部にアイテムが存在しない場合のみ実行される。
-     * 吸収後はItemEntityを削除し、
-     * 内部Inventoryへ格納する。
-     * </p>
-     */
     private void pickupItemEntity() {
 
-        if(level == null)
-            return;
-
-        if(!getStack(0).isEmpty())
-            return;
+        if(level == null) return;
+        if(!getStack(0).isEmpty()) return;
         AABB area = new AABB(worldPosition)
                 .move(0,0.8,0)
                 .inflate(0.25,0.1,0.25);
         List<ItemEntity> items = level.getEntitiesOfClass(ItemEntity.class, area);
-        if(items.isEmpty())
-            return;
+        if(items.isEmpty()) return;
         ItemEntity entity = items.get(0);
         ItemStack source = entity.getItem();
         ItemStack insert = source.copy();
@@ -175,6 +169,7 @@ public class ConveyorBlockEntity extends InventoryBlockEntity implements INTEner
             return false;
         return conveyor.getDirection() == getDirection();
     }
+
     @Override
     public @NotNull CompoundTag getUpdateTag(){
         CompoundTag tag = new CompoundTag();
@@ -197,8 +192,7 @@ public class ConveyorBlockEntity extends InventoryBlockEntity implements INTEner
 
         if(level == null)
             return 0;
-        if(!powered)
-            return beltOffset;
+        if(!isPowered()) return beltOffset;
         return (float)(((level.getGameTime() + partialTick) * speed) % 1.0);
     }
 
@@ -210,38 +204,29 @@ public class ConveyorBlockEntity extends InventoryBlockEntity implements INTEner
     public float getSpeed() {
         return speed;
     }
-    @Override
-    public double getEnergyDemand() {
-        return 200;
-    }
-    @Override
-    public boolean canWork() {
-        return powered;
-    }
-    public boolean isPowered() {
-        return powered;
-    }
     public ConveyorShape getShape() {
         return shape;
     }
 
     public boolean hasItem(){
-        return getStack(0).isEmpty();
+        return !getStack(0).isEmpty();
     }
 
     @Override
     protected void saveAdditional(@NotNull CompoundTag tag){
         super.saveAdditional(tag);
         tag.putFloat("Speed", speed);
-        tag.putBoolean("Powered", powered);
         tag.putLong("ItemStartTick", itemStartTick);
+        tag.putDouble("Energy", energyBuffer);
+        tag.putLong("LastReceiveTick", lastReceiveTick);
     }
     @Override
     public void load(@NotNull CompoundTag tag){
         super.load(tag);
         speed = tag.getFloat("Speed");
-        powered = tag.getBoolean("Powered");
         itemStartTick = tag.getLong("ItemStartTick");
+        energyBuffer = tag.getDouble("Energy");
+        lastReceiveTick = tag.getLong("LastReceiveTick");
     }
 
     public void setSpeed(float speed) {
@@ -249,17 +234,45 @@ public class ConveyorBlockEntity extends InventoryBlockEntity implements INTEner
     }
 
     @Override
-    public void setPowered(boolean value) {
-        if(powered == value) return;
-        powered = value;
-        setChanged();
-        if(level != null && !level.isClientSide){
-            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Block.UPDATE_ALL);
-        }
+    public NTEnergyNodeType getNodeType() {
+        return NTEnergyNodeType.CONSUMER;
     }
 
     @Override
-    public NTEnergyNodeType getNodeType() {
-        return NTEnergyNodeType.CONSUMER;
+    public NTEnergyPacket getPacket() {
+        return packet;
+    }
+
+    @Override
+    public BlockPos getPos() {
+        return worldPosition;
+    }
+
+    @Override
+    public void receivePacket(NTEnergyPacket packet) {
+        this.packet = packet;
+        this.energyBuffer = packet.energy();
+        this.lastReceiveTick = packet.time();
+        NoTitleMod.LOGGER.info("[Packet Hacker] Monitoring energy={}, time={}", packet.energy(), packet.time());
+        NoTitleMod.LOGGER.info("[Value] Monitoring energyBuffer={}, lastReceiveTime={}", energyBuffer, lastReceiveTick);
+        if (level instanceof ServerLevel server) {
+            setChanged();
+            server.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+        }
+    }
+
+    private boolean hasEnergy(){
+        if (packet == null) return false;
+        assert level != null;
+        return packet.time() == level.getGameTime()
+                && packet.energy() > 0;
+    }
+
+    public boolean isPowered(){
+        if (level == null) return false;
+        NoTitleMod.LOGGER.info("[isPower] Monitoring {}={} && {} > 0",this.lastReceiveTick, level.getGameTime()-1, energyBuffer);
+        return level != null
+                && this.lastReceiveTick == level.getGameTime()-1
+                && energyBuffer > 0;
     }
 }
