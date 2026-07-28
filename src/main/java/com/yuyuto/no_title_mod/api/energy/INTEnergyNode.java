@@ -7,7 +7,6 @@ import net.minecraft.core.BlockPos;
  */
 public interface INTEnergyNode {
     NTEnergyNodeType getNodeType();
-    NTEnergyPacket getPacket();
     BlockPos getPos();
     void receivePacket(NTEnergyPacket packet);
 }

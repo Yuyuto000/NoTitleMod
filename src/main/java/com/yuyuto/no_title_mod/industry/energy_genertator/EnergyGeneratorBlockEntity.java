@@ -4,7 +4,6 @@ import com.lowdragmc.lowdraglib.gui.modular.IUIHolder;
 import com.lowdragmc.lowdraglib.gui.modular.ModularUI;
 import com.lowdragmc.lowdraglib.gui.widget.*;
 import com.lowdragmc.lowdraglib.gui.texture.ResourceTexture;
-import com.yuyuto.no_title_mod.NoTitleMod;
 import com.yuyuto.no_title_mod.api.energy.*;
 import com.yuyuto.no_title_mod.gui.NTGuiTextures;
 import com.yuyuto.no_title_mod.registry.ModBlockEntities;
@@ -24,7 +23,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 
 public class EnergyGeneratorBlockEntity extends BlockEntity implements INTEnergyNode, IUIHolder {
@@ -43,14 +41,12 @@ public class EnergyGeneratorBlockEntity extends BlockEntity implements INTEnergy
     // NBT
     @Override
     protected void saveAdditional(@NotNull CompoundTag tag){
-        if(packet != null) tag.put("Packet", packet.save());
         super.saveAdditional(tag);
     }
 
     @Override
     public void load(@NotNull CompoundTag tag){
         super.load(tag);
-        if(tag.contains("Packet")) packet = NTEnergyPacket.load(tag.getCompound("Packet"));
     }
 
     // Tick
@@ -65,8 +61,9 @@ public class EnergyGeneratorBlockEntity extends BlockEntity implements INTEnergy
 
         // 発電
         entity.packet = entity.generatePacket();
-        if(level.getGameTime() % 20 == 0) NoTitleMod.LOGGER.info("[Generator] pos={},energy={},time={}", entity.worldPosition, Objects.requireNonNull(entity.packet).energy(), entity.packet.time());
-        NTEnergyTransfer.transfer(level, entity.worldPosition, new HashSet<>(), entity.packet);
+        if (entity.packet != null) {
+            NTEnergyTransfer.transfer(level, entity.worldPosition, entity.packet);
+        }
 
         // 演出
         if(++entity.soundTick >= 20){
@@ -131,11 +128,6 @@ public class EnergyGeneratorBlockEntity extends BlockEntity implements INTEnergy
     @Override
     public NTEnergyNodeType getNodeType() {
         return NTEnergyNodeType.GENERATOR;
-    }
-
-    @Override
-    public NTEnergyPacket getPacket() {
-        return packet;
     }
 
     @Override

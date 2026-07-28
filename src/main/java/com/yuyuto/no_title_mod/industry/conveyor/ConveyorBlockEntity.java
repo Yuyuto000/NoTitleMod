@@ -10,6 +10,7 @@ import com.yuyuto.no_title_mod.registry.ModBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -30,8 +31,6 @@ public class ConveyorBlockEntity extends InventoryBlockEntity implements INTEner
     private float speed = DEFAULT_SPEED;
     private float beltOffset = 0.0f;
     private static final double REQUIRED_ENERGY = 200;
-    private static final double ENERGY_USAGE = 1;
-    private NTEnergyPacket packet;
     private double energyBuffer;
     private long itemStartTick;
     private long lastReceiveTick;
@@ -45,16 +44,13 @@ public class ConveyorBlockEntity extends InventoryBlockEntity implements INTEner
     public static void tick(@NotNull Level level, BlockPos pos, BlockState state, @NotNull ConveyorBlockEntity entity) {
 
         if(level.isClientSide){
-            NoTitleMod.LOGGER.info("[Client] Monitoring isPowered = {}", entity.isPowered());
             entity.tickAnimation();
             return;
         }
-        NoTitleMod.LOGGER.info("[Server Conveyor] server phase, now -HasEnergy- executing");
-        if(!entity.hasEnergy()) return;
-        NoTitleMod.LOGGER.info("[Server Conveyor] now -entity.energyBuffer <= REQUIRED_ENERGY- executing");
+        if(!entity.isPowered()) {
+            return;
+        }
         if(entity.energyBuffer <= REQUIRED_ENERGY) return;
-        NoTitleMod.LOGGER.info("[Server Conveyor] All Clear, Server Process executing now");
-        entity.packet.consume(ENERGY_USAGE);
         entity.tickServer();
         entity.energyBuffer = 0;
     }
@@ -86,7 +82,7 @@ public class ConveyorBlockEntity extends InventoryBlockEntity implements INTEner
         if(!isPowered()) return;
         beltOffset += speed;
         if(beltOffset >= 1F)
-            beltOffset -= 1F;
+            beltOffset -= 0.1F;
     }
 
     private void moveItems(){
@@ -181,6 +177,19 @@ public class ConveyorBlockEntity extends InventoryBlockEntity implements INTEner
         return ClientboundBlockEntityDataPacket.create(this);
     }
 
+    @Override
+    public void handleUpdateTag(CompoundTag tag) {
+        super.handleUpdateTag(tag);
+        load(tag);
+    }
+
+    @Override
+    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt) {
+        if (pkt.getTag() != null) {
+            load(pkt.getTag());
+        }
+    }
+
     public float getRenderItemOffset(float partialTick){
 
         if(level == null) return 0F;
@@ -239,40 +248,27 @@ public class ConveyorBlockEntity extends InventoryBlockEntity implements INTEner
     }
 
     @Override
-    public NTEnergyPacket getPacket() {
-        return packet;
-    }
-
-    @Override
     public BlockPos getPos() {
         return worldPosition;
     }
 
     @Override
     public void receivePacket(NTEnergyPacket packet) {
-        this.packet = packet;
         this.energyBuffer = packet.energy();
-        this.lastReceiveTick = packet.time();
-        NoTitleMod.LOGGER.info("[Packet Hacker] Monitoring energy={}, time={}", packet.energy(), packet.time());
-        NoTitleMod.LOGGER.info("[Value] Monitoring energyBuffer={}, lastReceiveTime={}", energyBuffer, lastReceiveTick);
+        if (level != null) {
+            this.lastReceiveTick = level.getGameTime();
+        }
+
         if (level instanceof ServerLevel server) {
             setChanged();
             server.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
         }
     }
 
-    private boolean hasEnergy(){
-        if (packet == null) return false;
-        assert level != null;
-        return packet.time() == level.getGameTime()
-                && packet.energy() > 0;
-    }
-
     public boolean isPowered(){
         if (level == null) return false;
-        NoTitleMod.LOGGER.info("[isPower] Monitoring {}={} && {} > 0",this.lastReceiveTick, level.getGameTime()-1, energyBuffer);
-        return level != null
-                && this.lastReceiveTick == level.getGameTime()-1
-                && energyBuffer > 0;
+        NoTitleMod.LOGGER.info("[ConveyorBlockEntity] isPowered: {}", level.getGameTime() - this.lastReceiveTick <=2 && energyBuffer > 0);
+        NoTitleMod.LOGGER.info("[ConveyorBlockEntity] Monitoring: pos={}, {}-{}<=2 && {} > 0", getPos(), level.getGameTime(), this.lastReceiveTick, energyBuffer);
+        return  level.getGameTime() - this.lastReceiveTick <=2 && energyBuffer > 0;
     }
 }

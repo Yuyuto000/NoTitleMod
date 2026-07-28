@@ -12,8 +12,6 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashSet;
-
 public class EnergyCableBlockEntity extends BlockEntity implements INTEnergyNode {
 
     private NTEnergyPacket packet;
@@ -35,19 +33,12 @@ public class EnergyCableBlockEntity extends BlockEntity implements INTEnergyNode
     // NBT
     @Override
     protected void saveAdditional(@NotNull CompoundTag tag){
-        if(packet != null) tag.put("Packet", packet.save());
         super.saveAdditional(tag);
     }
 
     @Override
     public void load(@NotNull CompoundTag tag){
         super.load(tag);
-        if(tag.contains("Packet")) packet = NTEnergyPacket.load(tag.getCompound("Packet"));
-    }
-
-    @Override
-    public NTEnergyPacket getPacket() {
-        return packet;
     }
 
     @Override
@@ -58,13 +49,11 @@ public class EnergyCableBlockEntity extends BlockEntity implements INTEnergyNode
     @Override
     public void receivePacket(NTEnergyPacket packet) {
         this.packet = packet;
-        setChanged();
     }
 
     public static void tick(Level level, BlockPos pos, BlockState state, @NotNull EnergyCableBlockEntity entity){
-        if (entity.packet != null){
-            NTEnergyTransfer.transfer(level, entity.worldPosition, new HashSet<>(), entity.packet);
-            entity.packet = null;
-        }
+        if (entity.packet == null) return;
+        NTEnergyTransfer.transfer(level, entity.worldPosition, entity.packet);
+        entity.packet = null;
     }
 }

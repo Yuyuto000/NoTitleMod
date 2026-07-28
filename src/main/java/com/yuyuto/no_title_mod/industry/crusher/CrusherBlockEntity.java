@@ -1,6 +1,5 @@
 package com.yuyuto.no_title_mod.industry.crusher;
 
-import com.yuyuto.no_title_mod.NoTitleMod;
 import com.yuyuto.no_title_mod.api.energy.INTEnergyNode;
 import com.yuyuto.no_title_mod.api.energy.NTEnergyNodeType;
 import com.yuyuto.no_title_mod.api.energy.NTEnergyPacket;
@@ -29,10 +28,10 @@ public class CrusherBlockEntity extends BlockEntity implements INTEnergyNode {
     // 0=input,1=output
     private final ItemStackHandler inventory = new ItemStackHandler(2);
     private final LazyOptional<IItemHandler> itemHandler = LazyOptional.of(() -> inventory);
-    private NTEnergyPacket packet;
-    private double energy = packet.energy();
+    private double energy;
+    private long time;
     private static final double REQUIRED_ENERGY = 2000;
-    private static final double ENERGY_USAGE = 1;
+
     public CrusherBlockEntity(BlockPos pos, BlockState state){
         super(ModBlockEntities.CRUSHER.get(), pos, state);
     }
@@ -40,7 +39,6 @@ public class CrusherBlockEntity extends BlockEntity implements INTEnergyNode {
     @Override
     protected void saveAdditional(@NotNull CompoundTag tag){
         tag.put("inventory", inventory.serializeNBT());
-        if(packet != null) tag.put("Packet", packet.save());
         super.saveAdditional(tag);
     }
 
@@ -48,7 +46,6 @@ public class CrusherBlockEntity extends BlockEntity implements INTEnergyNode {
     public void load(@NotNull CompoundTag tag){
         super.load(tag);
         inventory.deserializeNBT(tag.getCompound("inventory"));
-        if(tag.contains("Packet"))  packet = NTEnergyPacket.load(tag.getCompound("Packet"));
     }
 
     @Override
@@ -70,20 +67,12 @@ public class CrusherBlockEntity extends BlockEntity implements INTEnergyNode {
     @SuppressWarnings("unused")
     public static void tick(Level level, BlockPos pos, BlockState state, @NotNull CrusherBlockEntity entity){
 
-        // Packetなし
-        if (entity.packet == null){
-            entity.progress = 0;
-            return;
-        }
         //電力不足
-        if (entity.packet.time() != level.getGameTime()) return;
-        if(entity.energy <= REQUIRED_ENERGY){
+        if(!entity.isPowered()){
             entity.progress = 0;
-            entity.energy = entity.packet.energy();
+            entity.energy = 0;
             return;
         }
-        //　消費
-        entity.packet.consume(ENERGY_USAGE);
         // 稼働
         entity.pullItem(pos);
         entity.pushItem(pos);
@@ -91,7 +80,6 @@ public class CrusherBlockEntity extends BlockEntity implements INTEnergyNode {
         if (entity.progress >= 100) {
             entity.process();
             entity.progress = 0;
-
         }
         // 演出
         if (entity.progress % 5 == 0 && level instanceof ServerLevel server) {
@@ -150,21 +138,20 @@ public class CrusherBlockEntity extends BlockEntity implements INTEnergyNode {
     }
 
     @Override
-    public NTEnergyPacket getPacket() {
-        return packet;
-    }
-
-    @Override
     public BlockPos getPos() {
         return worldPosition;
     }
 
     @Override
     public void receivePacket(NTEnergyPacket packet) {
-        if(level != null && level.getGameTime() % 20 == 0) NoTitleMod.LOGGER.info("[Crusher Receive] pos={} energy={} time={}", worldPosition, packet.energy(), packet.time());
-       if (packet.time() == level.getGameTime()){
-           this.packet = packet;
-       }
-        setChanged();
+        this.energy = packet.energy();
+        if (level != null) {
+            this.time = level.getGameTime();
+        }
+
+    }
+
+    private boolean isPowered() {
+        return level != null && level.getGameTime() - time <= 2 && energy > REQUIRED_ENERGY;
     }
 }
