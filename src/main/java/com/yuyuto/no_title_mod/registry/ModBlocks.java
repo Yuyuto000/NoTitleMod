@@ -5,6 +5,7 @@ import com.yuyuto.no_title_mod.industry.conveyor.ConveyorBlock;
 import com.yuyuto.no_title_mod.industry.crusher.CrusherBlock;
 import com.yuyuto.no_title_mod.industry.diesel.DieselBlock;
 import com.yuyuto.no_title_mod.industry.energy_cable.EnergyCableBlock;
+import com.yuyuto.no_title_mod.industry.energy_controller.EnergyControllerBlock;
 import com.yuyuto.no_title_mod.industry.energy_genertator.EnergyGeneratorBlock;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
@@ -93,6 +94,17 @@ public class ModBlocks {
                                     .mapColor(MapColor.STONE)
                                     .strength(4f)
                                     .explosionResistance(3)
+                                    .requiresCorrectToolForDrops()
+                                    .sound(SoundType.STONE)
+                    ));
+
+    public static final RegistryObject<Block> ENERGY_CONTROLLER =
+            registerBlock("energy_controller",
+                    () -> new EnergyControllerBlock(
+                            BlockBehaviour.Properties.of()
+                                    .mapColor(MapColor.STONE)
+                                    .strength(4f)
+                                    .explosionResistance(2)
                                     .requiresCorrectToolForDrops()
                                     .sound(SoundType.STONE)
                     ));

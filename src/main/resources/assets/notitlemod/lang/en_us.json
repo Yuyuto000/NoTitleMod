@@ -18,6 +18,7 @@
   "block.notitlemod.zinc_ore": "zinc ore",
   "block.notitlemod.crusher" : "Crusher",
   "block.notitlemod.energy_generator" : "Energy Generator",
+  "block.notitlemod.energy_controller" : "Energy Controller",
   "block.notitlemod.energy_cable" : "Electric Cable",
   "item.notitlemod.aluminum_ingot": "Aluminum ingot",
   "item.notitlemod.aluminum_dust" : "Aluminum Dust",

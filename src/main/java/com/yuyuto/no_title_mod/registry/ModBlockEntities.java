@@ -5,10 +5,9 @@ import com.yuyuto.no_title_mod.industry.conveyor.ConveyorBlockEntity;
 import com.yuyuto.no_title_mod.industry.crusher.CrusherBlockEntity;
 import com.yuyuto.no_title_mod.industry.diesel.DieselBlockEntity;
 import com.yuyuto.no_title_mod.industry.energy_cable.EnergyCableBlockEntity;
+import com.yuyuto.no_title_mod.industry.energy_controller.EnergyControllerBlockEntity;
 import com.yuyuto.no_title_mod.industry.energy_genertator.EnergyGeneratorBlockEntity;
-import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -46,6 +45,14 @@ public class ModBlockEntities {
                     BlockEntityType.Builder.of(
                             EnergyGeneratorBlockEntity::new,
                             ModBlocks.ENERGY_GENERATOR.get()
+                    ).build(null)
+            );
+
+    public static final RegistryObject<BlockEntityType<EnergyControllerBlockEntity>> ENERGY_CONTROLLER =
+            BLOCK_ENTITIES.register("energy_controller", () ->
+                    BlockEntityType.Builder.of(
+                            EnergyControllerBlockEntity::new,
+                            ModBlocks.ENERGY_CONTROLLER.get()
                     ).build(null)
             );
 

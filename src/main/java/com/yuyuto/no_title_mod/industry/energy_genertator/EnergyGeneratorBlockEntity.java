@@ -20,17 +20,12 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.HashSet;
-import java.util.Set;
-
-public class EnergyGeneratorBlockEntity extends BlockEntity implements INTEnergyNode, IUIHolder {
+public class EnergyGeneratorBlockEntity extends BlockEntity implements IUIHolder {
 
     // 機械内部変数
     private double mechanicalPower = 0;
     private double energy = 0;
-    private NTEnergyPacket packet;
     private int soundTick;
     private static final double POWER_THRESHOLD = 0.1;
 
@@ -52,7 +47,7 @@ public class EnergyGeneratorBlockEntity extends BlockEntity implements INTEnergy
     // Tick
     @SuppressWarnings("unused")
     public static void tick(Level level, BlockPos pos, BlockState state, @NotNull EnergyGeneratorBlockEntity entity){
-
+        if(level.isClientSide) return;
         entity.findMechanicalPower(level,pos);
         if(entity.mechanicalPower <= POWER_THRESHOLD){
             entity.soundTick = 0;
@@ -60,10 +55,7 @@ public class EnergyGeneratorBlockEntity extends BlockEntity implements INTEnergy
         }
 
         // 発電
-        entity.packet = entity.generatePacket();
-        if (entity.packet != null) {
-            NTEnergyTransfer.transfer(level, entity.worldPosition, entity.packet);
-        }
+        entity.energy = NTEnergyCalculation.calculateGeneratedVoltage(entity.mechanicalPower, level.getGameTime());
 
         // 演出
         if(++entity.soundTick >= 20){
@@ -88,11 +80,8 @@ public class EnergyGeneratorBlockEntity extends BlockEntity implements INTEnergy
         }
     }
 
-    // 発電処理
-    private @Nullable NTEnergyPacket generatePacket(){
-        if (level == null) return null;
-        energy = NTEnergyCalculation.calculateGeneratedVoltage(mechanicalPower, level.getGameTime());
-        return new NTEnergyPacket(energy, new HashSet<>(Set.of(worldPosition)), level.getGameTime());
+    public double getGeneratedEnergy(){
+        return energy;
     }
 
     // GUI
@@ -123,21 +112,5 @@ public class EnergyGeneratorBlockEntity extends BlockEntity implements INTEnergy
     @Override
     public void markAsDirty(){
 
-    }
-
-    @Override
-    public NTEnergyNodeType getNodeType() {
-        return NTEnergyNodeType.GENERATOR;
-    }
-
-    @Override
-    public BlockPos getPos() {
-        return worldPosition;
-    }
-
-    @Override
-    public void receivePacket(NTEnergyPacket packet) {
-        this.packet = packet;
-        setChanged();
     }
 }

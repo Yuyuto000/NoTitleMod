@@ -1,4 +1,4 @@
-package com.yuyuto.no_title_mod.industry.crusher;
+package com.yuyuto.no_title_mod.industry.energy_controller;
 
 import com.yuyuto.no_title_mod.api.energy.INTEnergyConnectable;
 import com.yuyuto.no_title_mod.registry.ModBlockEntities;
@@ -18,17 +18,16 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import org.jetbrains.annotations.NotNull;
 
-public class CrusherBlock extends BaseEntityBlock implements INTEnergyConnectable {
-
-    public CrusherBlock(Properties properties) {
+public class EnergyControllerBlock extends BaseEntityBlock implements INTEnergyConnectable {
+    public EnergyControllerBlock(Properties properties) {
         super(properties);
         registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH));
     }
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
 
     @Override
-    public BlockState getStateForPlacement(@NotNull BlockPlaceContext context) {
-        return defaultBlockState().setValue(FACING, context.getHorizontalDirection().getOpposite());
+    public BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state){
+        return new EnergyControllerBlockEntity(pos, state);
     }
 
     @Override
@@ -37,8 +36,8 @@ public class CrusherBlock extends BaseEntityBlock implements INTEnergyConnectabl
     }
 
     @Override
-    public BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
-        return new CrusherBlockEntity(pos, state);
+    public BlockState getStateForPlacement(@NotNull BlockPlaceContext context) {
+        return defaultBlockState().setValue(FACING, context.getHorizontalDirection().getOpposite());
     }
 
     @Override
@@ -48,7 +47,6 @@ public class CrusherBlock extends BaseEntityBlock implements INTEnergyConnectabl
 
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(@NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> type){
-        return createTickerHelper(type, ModBlockEntities.CRUSHER.get(), CrusherBlockEntity::tick);
+        return createTickerHelper(type, ModBlockEntities.ENERGY_CONTROLLER.get(), EnergyControllerBlockEntity::tick);
     }
 }
-

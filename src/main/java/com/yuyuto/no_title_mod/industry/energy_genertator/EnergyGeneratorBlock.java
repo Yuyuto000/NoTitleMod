@@ -48,11 +48,7 @@ public class EnergyGeneratorBlock extends BaseEntityBlock {
 
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(@NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> type){
-        return createTickerHelper(type, ModBlockEntities.ENERGY_GENERATOR.get(), (level1, pos, state1, entity) -> {
-            if (!level1.isClientSide) {
-                EnergyGeneratorBlockEntity.tick(level, pos, state, entity);
-            }
-        });
+        return createTickerHelper(type, ModBlockEntities.ENERGY_GENERATOR.get(), EnergyGeneratorBlockEntity::tick);
     }
 
     @Override
