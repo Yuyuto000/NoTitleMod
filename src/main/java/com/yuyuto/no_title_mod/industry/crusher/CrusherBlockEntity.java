@@ -1,7 +1,6 @@
 package com.yuyuto.no_title_mod.industry.crusher;
 
-import com.yuyuto.no_title_mod.api.energy.INTEnergyNode;
-import com.yuyuto.no_title_mod.api.energy.NTEnergyNodeType;
+import com.yuyuto.no_title_mod.api.energy.INTEnergyConsumer;
 import com.yuyuto.no_title_mod.api.energy.NTEnergyPacket;
 import com.yuyuto.no_title_mod.registry.ModBlockEntities;
 import net.minecraft.core.BlockPos;
@@ -22,7 +21,7 @@ import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 
-public class CrusherBlockEntity extends BlockEntity implements INTEnergyNode {
+public class CrusherBlockEntity extends BlockEntity implements INTEnergyConsumer {
 
     private int progress;
     // 0=input,1=output
@@ -133,24 +132,13 @@ public class CrusherBlockEntity extends BlockEntity implements INTEnergyNode {
     }
 
     @Override
-    public NTEnergyNodeType getNodeType() {
-        return NTEnergyNodeType.CONSUMER;
-    }
-
-    @Override
-    public BlockPos getPos() {
-        return worldPosition;
-    }
-
-    @Override
-    public void receivePacket(NTEnergyPacket packet) {
+    public void receivePacket(@NotNull NTEnergyPacket packet) {
         this.energy = packet.energy();
         if (level != null) {
             this.time = level.getGameTime();
         }
 
     }
-
     private boolean isPowered() {
         return level != null && level.getGameTime() - time <= 2 && energy > REQUIRED_ENERGY;
     }

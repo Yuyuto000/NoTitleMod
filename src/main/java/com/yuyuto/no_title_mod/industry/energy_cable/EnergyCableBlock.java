@@ -1,7 +1,6 @@
 package com.yuyuto.no_title_mod.industry.energy_cable;
 
-import com.yuyuto.no_title_mod.api.energy.INTEnergyNode;
-import com.yuyuto.no_title_mod.registry.ModBlockEntities;
+import com.yuyuto.no_title_mod.api.energy.INTEnergyConnectable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -12,8 +11,6 @@ import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityTicker;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -24,7 +21,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class EnergyCableBlock extends BaseEntityBlock {
+public class EnergyCableBlock extends BaseEntityBlock implements INTEnergyConnectable {
     private static final VoxelShape CENTER_VOXEL = Block.box(6,6,6,10,10,10);
     private static final VoxelShape NORTH_VOXEL = Block.box(6,6,0,10,10,6);
     private static final VoxelShape SOUTH_VOXEL = Block.box(6,6,10,10,10,16);
@@ -54,23 +51,12 @@ public class EnergyCableBlock extends BaseEntityBlock {
     public static final BooleanProperty DOWN  = BlockStateProperties.DOWN;
 
     @Override
-    public <T extends BlockEntity>BlockEntityTicker<T> getTicker(@NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> type){
-        return createTickerHelper(type, ModBlockEntities.ENERGY_CABLE.get(), (level1, pos, state1, entity) -> {
-            if (!level1.isClientSide){
-                EnergyCableBlockEntity.tick(level1, pos, state1, entity);
-            }
-        });
-    }
-
-    @Override
     protected void createBlockStateDefinition(StateDefinition.@NotNull Builder<Block, BlockState> builder) {
         builder.add(NORTH, SOUTH, EAST, WEST, UP, DOWN);
     }
 
     private boolean canConnectEnergy(@NotNull LevelAccessor level, BlockPos pos){
-
-        BlockEntity blockEntity = level.getBlockEntity(pos);
-        return blockEntity instanceof INTEnergyNode;
+        return level.getBlockState(pos).getBlock() instanceof INTEnergyConnectable;
     }
 
     @Override
