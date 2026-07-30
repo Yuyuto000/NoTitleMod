@@ -1,7 +1,6 @@
 package com.yuyuto.no_title_mod.registry;
 
 import com.yuyuto.no_title_mod.NoTitleMod;
-import com.yuyuto.no_title_mod.industry.conveyor.ConveyorBlock;
 import com.yuyuto.no_title_mod.industry.crusher.CrusherBlock;
 import com.yuyuto.no_title_mod.industry.diesel.DieselBlock;
 import com.yuyuto.no_title_mod.industry.energy_cable.EnergyCableBlock;
@@ -128,17 +127,6 @@ public class ModBlocks {
                                     .explosionResistance(2)
                                     .requiresCorrectToolForDrops()
                                     .mapColor(MapColor.STONE)
-                    ));
-
-    public static final RegistryObject<Block> CONVEYOR =
-            registerBlock("conveyor",
-                    () -> new ConveyorBlock(
-                            BlockBehaviour.Properties.of()
-                                    .sound(SoundType.STONE)
-                                    .strength(2f)
-                                    .explosionResistance(0.5f)
-                                    .mapColor(MapColor.WOOD)
-                                    .requiresCorrectToolForDrops()
                     ));
 
     //===========================弄らない==============================

@@ -1,7 +1,6 @@
 package com.yuyuto.no_title_mod.registry;
 
 import com.yuyuto.no_title_mod.NoTitleMod;
-import com.yuyuto.no_title_mod.industry.conveyor.ConveyorBlockEntity;
 import com.yuyuto.no_title_mod.industry.crusher.CrusherBlockEntity;
 import com.yuyuto.no_title_mod.industry.diesel.DieselBlockEntity;
 import com.yuyuto.no_title_mod.industry.energy_cable.EnergyCableBlockEntity;
@@ -61,14 +60,6 @@ public class ModBlockEntities {
                     BlockEntityType.Builder.of(
                             DieselBlockEntity::new,
                             ModBlocks.DIESEL.get()
-                    ).build(null)
-            );
-
-    public static final RegistryObject<BlockEntityType<ConveyorBlockEntity>> CONVEYOR =
-            BLOCK_ENTITIES.register("conveyor", () ->
-                    BlockEntityType.Builder.of(
-                            ConveyorBlockEntity::new,
-                            ModBlocks.CONVEYOR.get()
                     ).build(null)
             );
 
